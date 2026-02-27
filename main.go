@@ -28,22 +28,36 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	for i := range g.pixels{
 		g.pixels[i] = 0
 	}
-	
 
-    x := screenWidth/2
-	for y := 0; y < screenHeight; y++{
+//implement nested loop for more vertical lines 
+for x := 0; x < screenWidth; x++ {
+	height := screenHeight * 25 / (x + 1)
+	yStart := (screenHeight - height) / 2 
+	yEnd := (screenHeight + height) / 2 
+      
+	//give it a fixed height to stop the crash 
+	//x gets too big 
+	 
+	if yStart < 0{
+		yStart = 0
+	}
 
+	if yEnd > screenHeight{
+		yEnd = screenHeight 
+	}
+
+
+	for y := yStart; y < yEnd; y++{
 	 	 idx := (y*screenWidth + x) * 4
      g.pixels[idx+0] = 255 
-     g.pixels[idx+1] = 0
-     g.pixels[idx+2] = 0 
+     g.pixels[idx+1] = 255
+     g.pixels[idx+2] = 255
      g.pixels[idx+3] = 255 
+   }
  }
-
 	 screen.ReplacePixels(g.pixels)
-
  }
-
+1
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return screenWidth, screenHeight 
