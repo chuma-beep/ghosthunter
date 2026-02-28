@@ -11,6 +11,33 @@ const (
 	screenHeight = 200 
 )
 
+const texSize = 64 
+
+ var wallTexture [texSize * texSize * 4]byte 
+
+func init(){
+	for y := 0; y < texSize;y++ {
+		for x := 0; x < texSize; x++ {
+			idx := (y*texSize + x) * 4
+			if (x/8+y/8)%2 == 0{
+				wallTexture[idx+0] = 200    
+				wallTexture[idx+1] = 100
+				wallTexture[idx+2] =50
+				wallTexture[idx+3] = 255 
+			}else {
+				wallTexture[idx+0] = 100 
+				wallTexture[idx+1] = 50
+				wallTexture[idx+2] = 25 
+				wallTexture[idx+3] = 255
+			}
+		}
+	}
+}
+
+
+
+
+
 //types for game sruct here 
 type Game struct{
 	pixels []byte
@@ -97,6 +124,20 @@ func (g *Game) Draw(screen *ebiten.Image){
 			brightness = 255
 		}
 
+           //calculate where on the wall the ray hit 
+        hitX := g.playerX + math.Cos(rayAngle)*distance
+		hitY := g.playerY + math.Sin(rayAngle)*distance
+
+		var wallX float64
+		if math.Abs(math.Cos(rayAngle)) > (math.Sin(rayAngle)) {
+			wallX = hitY - math.Floor(hitY)
+		}else {
+			wallX = hitX - math.Floor(hitX)
+		}
+       
+        texX := int(wallX * float64(texSize)) 
+      
+
 		//draw255
 		height := int(float64(screenHeight) / distance)
 		yStart := (screenHeight - height) / 2
@@ -109,15 +150,20 @@ func (g *Game) Draw(screen *ebiten.Image){
 			yEnd  = screenHeight 
 		}
 
-             // wall column 
-		for y := yStart; y < yEnd; y++{
-			idx := (y*screenWidth + x) * 4 
-			g.pixels[idx+0] = uint8(brightness)
-			g.pixels[idx+1] = uint8(brightness)
-			g.pixels[idx+2] = uint8(brightness)
-			g.pixels[idx+3] = 255
-		}
 
+             // wall column 
+ for y := yStart; y < yEnd; y++ {
+    texY := (y - yStart) * texSize / height
+    if texY >= texSize {
+        texY = texSize - 1
+    }
+    texIdx := (texY*texSize + texX) * 4
+    idx := (y*screenWidth + x) * 4
+    g.pixels[idx+0] = uint8(float64(wallTexture[texIdx+0]) / distance)
+    g.pixels[idx+1] = uint8(float64(wallTexture[texIdx+1]) / distance)
+    g.pixels[idx+2] = uint8(float64(wallTexture[texIdx+2]) / distance)
+    g.pixels[idx+3] = 255
+}
        for y := 0; y < yStart; y++{
 		   idx := (y*screenWidth + x) * 4 
 		   g.pixels[idx+0] = 50
