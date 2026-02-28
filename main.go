@@ -3,9 +3,7 @@ package main
 import (
 	"log"
 	"math"
-    // "image"
-	// "image/color"
-	"github.com/hajimehoshi/ebiten/v2"
+    "github.com/hajimehoshi/ebiten/v2"
 )
 
 const (
@@ -21,16 +19,25 @@ type Game struct{
 	angle float64
 }
 
-//world map 
-var worldMap = [8][8]int{
-	{1, 1, 1, 1, 1, 1, 1, 1,},
-	{1, 0, 0, 0, 0, 0, 0, 1,},
-	{1, 0, 0, 0, 0, 0, 0, 1,},
-	{1, 0, 0, 0, 0, 0, 0, 1,},
-	{1, 0, 0, 0, 0, 0, 0, 1,},
-	{1, 0, 0, 0, 0, 0, 0, 1,},
-	{1, 0, 0, 0, 0, 0, 0, 1,},
-	{1, 1, 1, 1, 1, 1, 1, 1,},
+
+//worldMap
+var worldMap = [16][16]int{
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1},
+    {1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1},
+    {1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 }
 
 
@@ -43,12 +50,20 @@ func (g *Game) Update() error {
 		g.angle += 0.03
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyArrowUp){
-		g.playerX += math.Cos(g.angle) * 0.05
-		g.playerY += math.Sin(g.angle) * 0.05
+		newX := g.playerX + math.Cos(g.angle) * 0.05
+		newY := g.playerY + math.Sin(g.angle) * 0.05
+		if worldMap[int(newY)][int(newX)] == 0{
+			g.playerX = newX 
+			g.playerY = newY 
+		}
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyArrowDown){
-		g.playerX -= math.Cos(g.angle) * 0.05
-		g.playerY -= math.Sin(g.angle) * 0.05
+		newX := g.playerX - math.Cos(g.angle) * 0.05
+		newY := g.playerY - math.Sin(g.angle) * 0.05
+	    if worldMap[int(newY)][int(newX)] == 0 {
+			g.playerX = newX 
+			g.playerY = newY 
+		}
 	}
 	return nil
 }
@@ -77,8 +92,12 @@ func (g *Game) Draw(screen *ebiten.Image){
 			 }
 		}
 
+		brightness := 255.0 / distance
+		if brightness > 255 {
+			brightness = 255
+		}
 
-		//draw column 
+		//draw255
 		height := int(float64(screenHeight) / distance)
 		yStart := (screenHeight - height) / 2
 		yEnd := (screenHeight + height) / 2
@@ -90,11 +109,12 @@ func (g *Game) Draw(screen *ebiten.Image){
 			yEnd  = screenHeight 
 		}
 
+             // wall column 
 		for y := yStart; y < yEnd; y++{
 			idx := (y*screenWidth + x) * 4 
-			g.pixels[idx+0] = 255
-			g.pixels[idx+1] = 255 
-			g.pixels[idx+2] = 255
+			g.pixels[idx+0] = uint8(brightness)
+			g.pixels[idx+1] = uint8(brightness)
+			g.pixels[idx+2] = uint8(brightness)
 			g.pixels[idx+3] = 255
 		}
 
@@ -129,8 +149,8 @@ func main() {
      
 	game := &Game{
 		pixels: make([]byte, screenWidth*screenHeight*4),
-	    playerX: 2.0,
-		playerY: 2.0,
+	    playerX: 8.0,
+		playerY: 8.0,
         angle: 0.0,
 	}
 
