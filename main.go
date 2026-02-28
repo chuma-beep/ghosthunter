@@ -2,6 +2,9 @@ package main
 
 import (
 	"log"
+    "image"
+    _ "image/png"
+	"os"
 	"math"
     "github.com/hajimehoshi/ebiten/v2"
 )
@@ -13,27 +16,31 @@ const (
 
 const texSize = 64 
 
- var wallTexture [texSize * texSize * 4]byte 
+var wallTexture [texSize * texSize * 4]byte
 
-func init(){
-	for y := 0; y < texSize;y++ {
-		for x := 0; x < texSize; x++ {
-			idx := (y*texSize + x) * 4
-			if (x/8+y/8)%2 == 0{
-				wallTexture[idx+0] = 200    
-				wallTexture[idx+1] = 100
-				wallTexture[idx+2] =50
-				wallTexture[idx+3] = 255 
-			}else {
-				wallTexture[idx+0] = 100 
-				wallTexture[idx+1] = 50
-				wallTexture[idx+2] = 25 
-				wallTexture[idx+3] = 255
-			}
-		}
-	}
+func loadTexture(path string) {
+    f, err := os.Open(path)
+    if err != nil {
+        panic(err)
+    }
+    defer f.Close()
+
+    img, _, err := image.Decode(f)
+    if err != nil {
+        panic(err)
+    }
+
+    for y := 0; y < texSize; y++ {
+        for x := 0; x < texSize; x++ {
+            r, g, b, a := img.At(x, y).RGBA()
+            idx := (y*texSize + x) * 4
+            wallTexture[idx+0] = byte(r >> 8)
+            wallTexture[idx+1] = byte(g >> 8)
+            wallTexture[idx+2] = byte(b >> 8)
+            wallTexture[idx+3] = byte(a >> 8)
+        }
+    }
 }
-
 
 
 
@@ -199,6 +206,8 @@ func main() {
 		playerY: 8.0,
         angle: 0.0,
 	}
+    
+	loadTexture("assets/wall.png")
 
 	if err := ebiten.RunGame(game); err != nil{
 		log.Fatal(err)
