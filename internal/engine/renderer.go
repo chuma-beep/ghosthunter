@@ -5,6 +5,8 @@ import (
     "github.com/hajimehoshi/ebiten/v2"
 )
 
+
+
 func (g *Game) DrawMinimap() {
     cellSize := 4
 
@@ -133,9 +135,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
         }
     }
 
-    // sprite rendering
-    dx := g.SpriteX - g.PlayerX
-    dy := g.SpriteY - g.PlayerY
+// sprite rendering
+for _, sprite := range g.Sprites {
+    dx := sprite.X - g.PlayerX
+    dy := sprite.Y - g.PlayerY
     spriteDist := math.Sqrt(dx*dx + dy*dy)
     spriteAngle := math.Atan2(dy, dx) - g.Angle
 
@@ -158,25 +161,43 @@ func (g *Game) Draw(screen *ebiten.Image) {
         if xEnd > ScreenWidth { xEnd = ScreenWidth }
 
         for sx := xStart; sx < xEnd; sx++ {
-    if spriteDist < zBuffer[sx] {
-        texX := (sx - xStart) * TexSize / spriteWidth
-        for sy := yStart; sy < yEnd; sy++ {
-            texY := (sy - yStart) * TexSize / spriteHeight
-            texIdx := (texY*TexSize + texX) * 4
-            a := spriteTexture[texIdx+3]
-            if a > 0 {
-                idx := (sy*ScreenWidth + sx) * 4
-                g.Pixels[idx+0] = spriteTexture[texIdx+0]
-                g.Pixels[idx+1] = spriteTexture[texIdx+1]
-                g.Pixels[idx+2] = spriteTexture[texIdx+2]
-                g.Pixels[idx+3] = 255
+            if spriteDist < zBuffer[sx] {
+                texX := (sx - xStart) * spriteTexSize / spriteWidth
+                for sy := yStart; sy < yEnd; sy++ {
+                    texY := (sy - yStart) * spriteTexSize / spriteHeight
+                    texIdx := (texY*spriteTexSize + texX) * 4
+                    a := spriteTexture[texIdx+3]
+                    if a > 128 {
+                        idx := (sy*ScreenWidth + sx) * 4
+                        g.Pixels[idx+0] = spriteTexture[texIdx+0]
+                        g.Pixels[idx+1] = spriteTexture[texIdx+1]
+                        g.Pixels[idx+2] = spriteTexture[texIdx+2]
+                        g.Pixels[idx+3] = 255
+                    }
+                }
             }
         }
     }
-   
 }
 
+   // draw crosshair
+cx := ScreenWidth / 2
+cy := ScreenHeight / 2
+for i := -5; i <= 5; i++ {
+    idx := (cy*ScreenWidth + (cx + i)) * 4
+    g.Pixels[idx+0] = 255
+    g.Pixels[idx+1] = 255
+    g.Pixels[idx+2] = 255
+    g.Pixels[idx+3] = 255
+
+    idx = ((cy+i)*ScreenWidth + cx) * 4
+    g.Pixels[idx+0] = 255
+    g.Pixels[idx+1] = 255
+    g.Pixels[idx+2] = 255
+    g.Pixels[idx+3] = 255
 }
+
+
 
     g.DrawMinimap()
 

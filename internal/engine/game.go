@@ -10,8 +10,7 @@ type Game struct {
     PlayerX float64
     PlayerY float64
     Angle   float64
-    SpriteX float64
-    SpriteY float64
+    Sprites []Sprite
 }
 
 func NewGame() *Game {
@@ -20,8 +19,11 @@ func NewGame() *Game {
         PlayerX: 8.0,
         PlayerY: 8.0,
         Angle:   0.0,
-        SpriteX: 6.0,
-        SpriteY: 6.0,
+        Sprites: []Sprite{
+         {X: 6.0, Y: 6.0, VX: 0.0, VY: 0.0},
+         {X: 10.0, Y: 4.0, VX: 0.0, VY: 0.0},
+         {X: 3.0, Y: 12.0, VX: 0.0, VY: 0.0},
+       },
     }
 }
 
@@ -48,8 +50,23 @@ func (g *Game) Update() error {
             g.PlayerY = newY
         }
     }
+
+
+// move sprites toward player
+for i := range g.Sprites {
+    dx := g.PlayerX - g.Sprites[i].X
+    dy := g.PlayerY - g.Sprites[i].Y
+    dist := math.Sqrt(dx*dx + dy*dy)
+    if dist > 0.5 {
+        g.Sprites[i].X += (dx / dist) * 0.005
+        g.Sprites[i].Y += (dy / dist) * 0.005
+    }
+}
+
+
     return nil
 }
+
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
     return ScreenWidth, ScreenHeight

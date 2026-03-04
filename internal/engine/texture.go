@@ -39,7 +39,7 @@ const spriteTexSize = 64
 
 var spriteTexture [spriteTexSize * spriteTexSize * 4]byte 
 
-func LoadSpritTexture(path string) {
+func LoadSpriteTexture(path string) {
 	f, err := os.Open(path)
 	if err != nil {
 		panic(err)
