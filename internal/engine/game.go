@@ -13,6 +13,7 @@ type Game struct {
     Sprites []Sprite
     Score     int
     RespawnTimer int
+    Health      int 
 }
 
 func NewGame() *Game {
@@ -21,7 +22,8 @@ func NewGame() *Game {
         PlayerX: 8.0,
         PlayerY: 8.0,
         Angle:   0.0,
-        Sprites: []Sprite{
+		Health: 100,
+		Sprites: []Sprite{
          {X: 6.0, Y: 6.0, VX: 0.0, VY: 0.0},
          {X: 10.0, Y: 4.0, VX: 0.0, VY: 0.0},
          {X: 3.0, Y: 12.0, VX: 0.0, VY: 0.0},
@@ -65,6 +67,30 @@ for i := range g.Sprites {
     }
 }
 
+for _, sprite := range g.Sprites {
+	dx := sprite.X - g.PlayerX 
+	dy := sprite.Y - g.PlayerY
+	dist := math.Sqrt(dx*dx + dy*dy)
+	if dist < 0.8{
+	    g.Health -= 1	
+	}
+}
+
+
+if g.Health <= 0{
+	if ebiten.IsKeyPressed(ebiten.KeyR){
+		g.Health = 100
+		g.Score = 0
+		g.Sprites =  []Sprite{
+			{X: 6.0, Y: 6.0},
+			{X: 10.0, Y: 4.0},
+			{X: 3.0, Y: 12.0},
+		}
+	}
+   return nil
+}
+
+
 // shooting
 if ebiten.IsKeyPressed(ebiten.KeySpace) {
     for i := len(g.Sprites) - 1; i >= 0; i-- {
@@ -96,6 +122,12 @@ if len(g.Sprites) == 0 {
         g.RespawnTimer = 0
     }
 }
+
+
+ if g.Health <= 0 {
+	 g.Health = 0 
+	 g.Sprites = []Sprite{}
+	  }
 
 
     return nil

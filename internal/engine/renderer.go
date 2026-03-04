@@ -203,5 +203,11 @@ for i := -5; i <= 5; i++ {
   
     g.DrawMinimap()
     screen.ReplacePixels(g.Pixels)
-    ebitenutil.DebugPrint(screen, fmt.Sprintf("Score: %d", g.Score))
+    
+	if g.Health <= 0{
+		ebitenutil.DebugPrint(screen, "GAME OVER") 
+	}else{
+
+		ebitenutil.DebugPrint(screen, fmt.Sprintf("Score: %d Health: %d", g.Score, g.Health))
+  }
 }
