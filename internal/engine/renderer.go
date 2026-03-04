@@ -1,8 +1,10 @@
 package engine
 
 import (
-    "math"
+     "fmt"
+	"math"
     "github.com/hajimehoshi/ebiten/v2"
+    "github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 
@@ -198,8 +200,8 @@ for i := -5; i <= 5; i++ {
 }
 
 
-
+  
     g.DrawMinimap()
-
     screen.ReplacePixels(g.Pixels)
+    ebitenutil.DebugPrint(screen, fmt.Sprintf("Score: %d", g.Score))
 }

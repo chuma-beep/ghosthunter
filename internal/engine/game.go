@@ -11,6 +11,8 @@ type Game struct {
     PlayerY float64
     Angle   float64
     Sprites []Sprite
+    Score     int
+    RespawnTimer int
 }
 
 func NewGame() *Game {
@@ -63,11 +65,6 @@ for i := range g.Sprites {
     }
 }
 
-
-
-
-
-
 // shooting
 if ebiten.IsKeyPressed(ebiten.KeySpace) {
     for i := len(g.Sprites) - 1; i >= 0; i-- {
@@ -81,11 +78,24 @@ if ebiten.IsKeyPressed(ebiten.KeySpace) {
 
         if math.Abs(spriteAngle) < 0.2 && dist < 10 {
             g.Sprites = append(g.Sprites[:i], g.Sprites[i+1:]...)
+			g.Score++
         }
     }
+
 }
 
-
+  // respawn ghosts when all are dead
+if len(g.Sprites) == 0 {
+    g.RespawnTimer++
+    if g.RespawnTimer > 180 {
+        g.Sprites = []Sprite{
+            {X: 6.0, Y: 6.0},
+            {X: 10.0, Y: 4.0},
+            {X: 3.0, Y: 12.0},
+        }
+        g.RespawnTimer = 0
+    }
+}
 
 
     return nil
