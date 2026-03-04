@@ -68,6 +68,23 @@ for i := range g.Sprites {
 }
 
 
+// shooting
+if ebiten.IsKeyPressed(ebiten.KeySpace) {
+    for i := len(g.Sprites) - 1; i >= 0; i-- {
+        dx := g.Sprites[i].X - g.PlayerX
+        dy := g.Sprites[i].Y - g.PlayerY
+        dist := math.Sqrt(dx*dx + dy*dy)
+
+        spriteAngle := math.Atan2(dy, dx) - g.Angle
+        for spriteAngle > math.Pi { spriteAngle -= 2 * math.Pi }
+        for spriteAngle < -math.Pi { spriteAngle += 2 * math.Pi }
+
+        if math.Abs(spriteAngle) < 0.2 && dist < 10 {
+            g.Sprites = append(g.Sprites[:i], g.Sprites[i+1:]...)
+        }
+    }
+}
+
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
     return ScreenWidth, ScreenHeight
 }
