@@ -5,6 +5,64 @@ import (
     "github.com/hajimehoshi/ebiten/v2"
 )
 
+func (g *Game) DrawMinimap() {
+    cellSize := 4
+
+    for row := 0; row < 16; row++ {
+        for col := 0; col < 16; col++ {
+            var r, gr, b uint8
+            if WorldMap[row][col] == 1 {
+                r, gr, b = 255, 255, 255 // wall
+            } else {
+                r, gr, b = 50, 50, 50 // empty
+            }
+
+            for py := 0; py < cellSize; py++ {
+                for px := 0; px < cellSize; px++ {
+                    x := col*cellSize + px
+                    y := row*cellSize + py
+                    idx := (y*ScreenWidth + x) * 4
+                    g.Pixels[idx+0] = r
+                    g.Pixels[idx+1] = gr
+                    g.Pixels[idx+2] = b
+                    g.Pixels[idx+3] = 255
+                }
+            }
+        }
+    }
+
+
+	// draw player
+px := int(g.PlayerX * float64(cellSize))
+py := int(g.PlayerY * float64(cellSize))
+
+idx := (py*ScreenWidth + px) * 4
+g.Pixels[idx+0] = 255
+g.Pixels[idx+1] = 255
+g.Pixels[idx+2] = 0
+g.Pixels[idx+3] = 255
+
+// draw direction line
+for i := 0; i < 10; i++ {
+    lx := int(g.PlayerX*float64(cellSize) + math.Cos(g.Angle)*float64(i))
+    ly := int(g.PlayerY*float64(cellSize) + math.Sin(g.Angle)*float64(i))
+    if lx >= 0 && lx < ScreenWidth && ly >= 0 && ly < ScreenHeight {
+        idx := (ly*ScreenWidth + lx) * 4
+        g.Pixels[idx+0] = 255
+        g.Pixels[idx+1] = 255
+        g.Pixels[idx+2] = 0
+        g.Pixels[idx+3] = 255
+    }
+}
+
+
+
+
+}
+
+
+
+
 func (g *Game) Draw(screen *ebiten.Image) {
     // clear to black
     for i := range g.Pixels {
@@ -100,17 +158,27 @@ func (g *Game) Draw(screen *ebiten.Image) {
         if xEnd > ScreenWidth { xEnd = ScreenWidth }
 
         for sx := xStart; sx < xEnd; sx++ {
-            if spriteDist < zBuffer[sx] {
-                for sy := yStart; sy < yEnd; sy++ {
-                    idx := (sy*ScreenWidth + sx) * 4
-                    g.Pixels[idx+0] = 255
-                    g.Pixels[idx+1] = 0
-                    g.Pixels[idx+2] = 0
-                    g.Pixels[idx+3] = 255
-                }
+    if spriteDist < zBuffer[sx] {
+        texX := (sx - xStart) * TexSize / spriteWidth
+        for sy := yStart; sy < yEnd; sy++ {
+            texY := (sy - yStart) * TexSize / spriteHeight
+            texIdx := (texY*TexSize + texX) * 4
+            a := spriteTexture[texIdx+3]
+            if a > 0 {
+                idx := (sy*ScreenWidth + sx) * 4
+                g.Pixels[idx+0] = spriteTexture[texIdx+0]
+                g.Pixels[idx+1] = spriteTexture[texIdx+1]
+                g.Pixels[idx+2] = spriteTexture[texIdx+2]
+                g.Pixels[idx+3] = 255
             }
         }
     }
+   
+}
+
+}
+
+    g.DrawMinimap()
 
     screen.ReplacePixels(g.Pixels)
 }
