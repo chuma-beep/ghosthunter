@@ -64,8 +64,8 @@ for i := range g.Sprites {
 }
 
 
-    return nil
-}
+
+
 
 
 // shooting
@@ -84,6 +84,15 @@ if ebiten.IsKeyPressed(ebiten.KeySpace) {
         }
     }
 }
+
+
+
+
+    return nil
+}
+
+
+
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
     return ScreenWidth, ScreenHeight
