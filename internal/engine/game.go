@@ -104,7 +104,8 @@ if ebiten.IsKeyPressed(ebiten.KeySpace) {
 
         if math.Abs(spriteAngle) < 0.2 && dist < 10 {
             g.Sprites = append(g.Sprites[:i], g.Sprites[i+1:]...)
-			g.Score++
+		        g.Score++
+            PlaySound("assets/shoot.wav")
         }
     }
 

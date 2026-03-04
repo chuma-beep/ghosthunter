@@ -9,6 +9,7 @@ import (
 func main() {
     engine.LoadTexture("assets/wall.png")
     engine.LoadSpriteTexture("assets/sprite_real.png")
+    engine.InitAudio()
     ebiten.SetWindowSize(engine.ScreenWidth*2, engine.ScreenHeight*2)
     ebiten.SetWindowTitle("doom-go")
 
