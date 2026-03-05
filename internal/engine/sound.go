@@ -18,13 +18,14 @@ func InitAudio() {
 
 
 func PlaySound(path string) {
+	if audioContext == nil{
+		return 
+	}
 	f, err := os.ReadFile(path)
 	if  err != nil {
 		log.Println("sound error:", err)
 		return 
 	}
-
-
 
 	stream, err := wav.DecodeWithoutResampling(bytes.NewReader(f))
 	if err != nil{

@@ -22,7 +22,7 @@ func (g *Game) DrawMinimap() {
     for row := 0; row < 16; row++ {
         for col := 0; col < 16; col++ {
             var r, gr, b uint8
-            if WorldMap[row][col] == 1 {
+            if GetMap(g.CurrentMap)[row][col] == 1 {
                 r, gr, b = 255, 255, 255 // wall
             } else {
                 r, gr, b = 50, 50, 50 // empty
@@ -102,10 +102,6 @@ func (g *Game) DrawGun() {
 
 
 
-
-
-
-
 func (g *Game) DrawHUD() {
     // health bar background
     barWidth := 100
@@ -138,7 +134,10 @@ func (g *Game) DrawHUD() {
 
 
 func (g *Game) Draw(screen *ebiten.Image) {
-    // clear to black
+    fmt.Println("CurrentMap:", g.CurrentMap)
+
+
+	// clear to black
     for i := range g.Pixels {
         g.Pixels[i] = 0
     }
@@ -153,7 +152,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
         for distance = 0; distance < 20; distance += 0.01 {
             rayX := g.PlayerX + math.Cos(rayAngle)*distance
             rayY := g.PlayerY + math.Sin(rayAngle)*distance
-            if WorldMap[int(rayY)][int(rayX)] == 1 {
+            if GetMap(g.CurrentMap)[int(rayY)][int(rayX)] == 1 {
                 break
             }
         }
@@ -189,15 +188,19 @@ func (g *Game) Draw(screen *ebiten.Image) {
             g.Pixels[idx+2] = uint8(float64(WallTexture[texIdx+2]) / distance)
             g.Pixels[idx+3] = 255
         }
-
-        for y := 0; y < yStart; y++ {
-            idx := (y*ScreenWidth + x) * 4
-            g.Pixels[idx+0] = 50
-            g.Pixels[idx+1] = 50
-            g.Pixels[idx+2] = 139
-            g.Pixels[idx+3] = 255
-        }
-
+for y := 0; y < yStart; y++ {
+    idx := (y*ScreenWidth + x) * 4
+    if g.CurrentMap == 0 {
+        g.Pixels[idx+0] = 50
+        g.Pixels[idx+1] = 50
+        g.Pixels[idx+2] = 139
+    } else {
+        g.Pixels[idx+0] = 0
+        g.Pixels[idx+1] = 100
+        g.Pixels[idx+2] = 0
+    }
+    g.Pixels[idx+3] = 255
+}
         for y := yEnd; y < ScreenHeight; y++ {
             idx := (y*ScreenWidth + x) * 4
             g.Pixels[idx+0] = 139
@@ -206,7 +209,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
             g.Pixels[idx+3] = 255
         }
     }
-
 
      if g.GameState == 0 {
     ebitenutil.DebugPrint(screen, "GHOST HUNTER\n\nPress SPACE to start\n\nArrow keys to move\nSPACE to shoot")
@@ -327,18 +329,17 @@ for i := -5; i <= 5; i++ {
     g.Pixels[idx+2] = 255
     g.Pixels[idx+3] = 255
 }
-
-speed := 0.005 + float64(g.Wave)*0.002
-
-for i := range g.Sprites {
-    dx := g.PlayerX - g.Sprites[i].X
-    dy := g.PlayerY - g.Sprites[i].Y
-    dist := math.Sqrt(dx*dx + dy*dy)
-    if dist > 0.5 {
-        g.Sprites[i].X += (dx / dist) * speed
-        g.Sprites[i].Y += (dy / dist) * speed
-    }
-}
+//
+// speed := 0.005 + float64(g.Wave)*0.002
+//
+// for i := range g.Sprites {
+//     dx := g.PlayerX - g.Sprites[i].X
+//     dy := g.PlayerY - g.Sprites[i].Y
+//     dist := math.Sqrt(dx*dx + dy*dy)
+//     if dist > 0.5 {
+//         g.Sprites[i].X += (dx / dist) * speed
+//         g.Sprites[i].Y += (dy / dist) * speed
+//     }
 
 
 // screen flash when taking damage

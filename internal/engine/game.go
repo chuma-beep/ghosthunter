@@ -1,11 +1,7 @@
-
-
-
-
-
 package engine
 
 import (
+	"fmt"
     "math"
     "github.com/hajimehoshi/ebiten/v2"
     "github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -27,12 +23,14 @@ type Game struct {
     AmmoPickups  []AmmoPickup
     GameState    int
     HighScore    int
+    CurrentMap   int 
 }
 
 func NewGame() *Game {
     return &Game{
         Pixels:  make([]byte, ScreenWidth*ScreenHeight*4),
-        PlayerX: 8.0,
+        CurrentMap: 0,
+		PlayerX: 8.0,
         PlayerY: 8.0,
         Angle:   0.0,
         Wave:    1,
@@ -61,6 +59,31 @@ func (g *Game) Update() error {
         return nil
     }
 
+
+
+// portal detection
+portalX, portalY := 13.0, 1.0
+pdx := g.PlayerX - portalX
+pdy := g.PlayerY - portalY
+portalDist := math.Sqrt(pdx*pdx + pdy*pdy)
+if portalDist < 0.8 {
+    fmt.Println("PORTAL TRIGGERED", g.CurrentMap)
+    if g.CurrentMap == 0 {
+        g.CurrentMap = 1
+    } else {
+        g.CurrentMap = 0
+    }
+    g.PlayerX = 2.0
+    g.PlayerY = 2.0
+    g.Sprites = []Sprite{
+        {X: 6.0, Y: 6.0},
+        {X: 10.0, Y: 4.0},
+        {X: 3.0, Y: 12.0},
+    }
+}
+
+
+
     // game over screen
     if g.GameState == 2 {
         if inpututil.IsKeyJustPressed(ebiten.KeyR) {
@@ -88,7 +111,7 @@ func (g *Game) Update() error {
     if ebiten.IsKeyPressed(ebiten.KeyArrowUp) {
         newX := g.PlayerX + math.Cos(g.Angle)*0.05
         newY := g.PlayerY + math.Sin(g.Angle)*0.05
-        if WorldMap[int(newY)][int(newX)] == 0 {
+        if GetMap(g.CurrentMap)[int(newY)][int(newX)] == 0 {
             g.PlayerX = newX
             g.PlayerY = newY
         }
@@ -96,7 +119,7 @@ func (g *Game) Update() error {
     if ebiten.IsKeyPressed(ebiten.KeyArrowDown) {
         newX := g.PlayerX - math.Cos(g.Angle)*0.05
         newY := g.PlayerY - math.Sin(g.Angle)*0.05
-        if WorldMap[int(newY)][int(newX)] == 0 {
+        if GetMap(g.CurrentMap)[int(newY)][int(newX)] == 0 {
             g.PlayerX = newX
             g.PlayerY = newY
         }
@@ -138,7 +161,7 @@ func (g *Game) Update() error {
             g.DamageFlash = 10
             newX := g.PlayerX - (dx/dist) * 1.0
             newY := g.PlayerY - (dy/dist) * 1.0
-            if WorldMap[int(newY)][int(newX)] == 0 {
+            if GetMap(g.CurrentMap)[int(newY)][int(newX)] == 1 {
                 g.PlayerX = newX
                 g.PlayerY = newY
             }
