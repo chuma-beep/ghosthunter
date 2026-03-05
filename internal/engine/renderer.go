@@ -3,10 +3,18 @@ package engine
 import (
      "fmt"
 	"math"
+
     "github.com/hajimehoshi/ebiten/v2"
     "github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
+
+func min(a, b int) int {
+    if a < b {
+        return a
+    }
+    return b
+}
 
 
 func (g *Game) DrawMinimap() {
@@ -199,6 +207,17 @@ for i := -5; i <= 5; i++ {
     g.Pixels[idx+3] = 255
 }
 
+
+
+
+// screen flash when taking damage
+if g.DamageFlash > 0 {
+    for i := 0; i < len(g.Pixels); i += 4 {
+        g.Pixels[i+0] = uint8(min(int(g.Pixels[i+0])+100, 255))
+        g.Pixels[i+3] = 255
+    }
+    g.DamageFlash--
+}
 
   
     g.DrawMinimap()

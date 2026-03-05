@@ -14,7 +14,8 @@ type Game struct {
     Sprites []Sprite
     Score     int
     RespawnTimer int
-    Health      int 
+    Health      int
+		DamageFlash int
 }
 
 func NewGame() *Game {
@@ -73,7 +74,8 @@ for _, sprite := range g.Sprites {
 	dy := sprite.Y - g.PlayerY
 	dist := math.Sqrt(dx*dx + dy*dy)
 	if dist < 0.8{
-	    g.Health -= 1	
+	    g.Health -= 1
+      g.DamageFlash = 10
 	}
 }
 
@@ -105,6 +107,7 @@ if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
         if math.Abs(spriteAngle) < 0.2 && dist < 10 {
             g.Sprites = append(g.Sprites[:i], g.Sprites[i+1:]...)
             g.Score++
+						PlaySound("assets/ghost.wav")
         }
     }
 }
@@ -129,6 +132,7 @@ if len(g.Sprites) == 0 {
 	 g.Health = 0 
 	 g.Sprites = []Sprite{}
 	  }
+ 
 
 
     return nil
