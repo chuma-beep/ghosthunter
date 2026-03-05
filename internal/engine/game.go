@@ -141,20 +141,7 @@ for i := range g.AmmoPickups {
 }
 
 
-//
-// if g.Health <= 0{
-// 	if ebiten.IsKeyPressed(ebiten.KeyR){
-// 		g.Health = 100
-// 		g.Score = 0
-// 		g.Sprites =  []Sprite{
-// 			{X: 6.0, Y: 6.0},
-// 			{X: 10.0, Y: 4.0},
-// 			{X: 3.0, Y: 12.0},
-// 		}
-// 	}
-//    return nil
-// }
-//
+
 
 // shooting
 if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
