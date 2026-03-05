@@ -72,7 +72,35 @@ for i := 0; i < 10; i++ {
 
 }
 
+func (g *Game) DrawHUD() {
+    // health bar background
+    barWidth := 100
+    barHeight := 10
+    barX := 5
+    barY := ScreenHeight - 20
 
+    for y := barY; y < barY+barHeight; y++ {
+        for x := barX; x < barX+barWidth; x++ {
+            idx := (y*ScreenWidth + x) * 4
+            g.Pixels[idx+0] = 100
+            g.Pixels[idx+1] = 0
+            g.Pixels[idx+2] = 0
+            g.Pixels[idx+3] = 255
+        }
+    }
+
+    // health bar fill
+    fillWidth := barWidth * g.Health / 100
+    for y := barY; y < barY+barHeight; y++ {
+        for x := barX; x < barX+fillWidth; x++ {
+            idx := (y*ScreenWidth + x) * 4
+            g.Pixels[idx+0] = 0
+            g.Pixels[idx+1] = 255
+            g.Pixels[idx+2] = 0
+            g.Pixels[idx+3] = 255
+        }
+    }
+}
 
 
 func (g *Game) Draw(screen *ebiten.Image) {
@@ -219,7 +247,11 @@ if g.DamageFlash > 0 {
     g.DamageFlash--
 }
 
-  
+
+
+
+
+    g.DrawHUD()
     g.DrawMinimap()
     screen.ReplacePixels(g.Pixels)
     
@@ -230,3 +262,7 @@ if g.DamageFlash > 0 {
 		ebitenutil.DebugPrint(screen, fmt.Sprintf("Score: %d Health: %d", g.Score, g.Health))
   }
 }
+
+
+
+
