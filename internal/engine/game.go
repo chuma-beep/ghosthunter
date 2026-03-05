@@ -20,6 +20,7 @@ type Game struct {
     GunKick int
 		Ammo         int
     AmmoPickups []AmmoPickup
+    GameState int 
 	}
 
 func NewGame() *Game {
@@ -30,6 +31,7 @@ func NewGame() *Game {
         Angle:   0.0,
 				Wave:    1,
 				Ammo:    10,
+				GameState: 0,
 		Health: 100,
 		Sprites: []Sprite{
          {X: 6.0, Y: 6.0, VX: 0.0, VY: 0.0},
@@ -45,7 +47,31 @@ func NewGame() *Game {
 }
 
 func (g *Game) Update() error {
-    if ebiten.IsKeyPressed(ebiten.KeyArrowLeft) {
+  if g.GameState == 0 {
+    if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+        g.GameState = 1
+    }
+    return nil
+}
+
+if g.GameState == 2 {
+    if inpututil.IsKeyJustPressed(ebiten.KeyR) {
+        g.Health = 100
+        g.Score = 0
+        g.Ammo = 10
+        g.Wave = 1
+        g.GameState = 1
+        g.Sprites = []Sprite{
+            {X: 6.0, Y: 6.0},
+            {X: 10.0, Y: 4.0},
+            {X: 3.0, Y: 12.0},
+        }
+    }
+    return nil
+} 
+
+   
+	if ebiten.IsKeyPressed(ebiten.KeyArrowLeft) {
         g.Angle -= 0.03
     }
     if ebiten.IsKeyPressed(ebiten.KeyArrowRight) {
@@ -181,7 +207,7 @@ if len(g.Sprites) == 0 {
     }
 }
  if g.Health <= 0 {
-	 g.Health = 0 
+	 g.GameState = 2 
 	 g.Sprites = []Sprite{}
 	  }
  

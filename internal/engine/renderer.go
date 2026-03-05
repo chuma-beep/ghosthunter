@@ -207,6 +207,18 @@ func (g *Game) Draw(screen *ebiten.Image) {
         }
     }
 
+
+     if g.GameState == 0 {
+    ebitenutil.DebugPrint(screen, "GHOST HUNTER\n\nPress SPACE to start\n\nArrow keys to move\nSPACE to shoot")
+    return
+}
+
+if g.GameState == 2 {
+    ebitenutil.DebugPrint(screen, fmt.Sprintf("GAME OVER\nScore: %d\nWave: %d\n\nPress R to restart", g.Score, g.Wave))
+    return
+} 
+
+
 // sprite rendering
 for _, sprite := range g.Sprites {
     dx := sprite.X - g.PlayerX
