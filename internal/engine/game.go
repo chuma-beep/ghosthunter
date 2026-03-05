@@ -19,7 +19,8 @@ type Game struct {
 		Wave     int
     GunKick int
 		Ammo         int
-}
+    AmmoPickups []AmmoPickup
+	}
 
 func NewGame() *Game {
     return &Game{
@@ -35,6 +36,11 @@ func NewGame() *Game {
          {X: 10.0, Y: 4.0, VX: 0.0, VY: 0.0},
          {X: 3.0, Y: 12.0, VX: 0.0, VY: 0.0},
        },
+    AmmoPickups: []AmmoPickup{
+         {X: 5.0, Y: 5.0, Active: true},
+         {X: 11.0, Y: 11.0, Active: true},
+         {X: 3.0, Y: 9.0, Active: true},
+},
     }
 }
 
@@ -92,6 +98,22 @@ for _, sprite := range g.Sprites {
         }
 	}
 }
+
+
+//Ammo pickup 
+for i := range g.AmmoPickups {
+    if !g.AmmoPickups[i].Active {
+        continue
+    }
+    dx := g.AmmoPickups[i].X - g.PlayerX
+    dy := g.AmmoPickups[i].Y - g.PlayerY
+    dist := math.Sqrt(dx*dx + dy*dy)
+    if dist < 0.8 {
+        g.Ammo += 5
+        g.AmmoPickups[i].Active = false
+    }
+}
+
 
 
 if g.Health <= 0{

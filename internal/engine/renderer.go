@@ -252,6 +252,53 @@ for _, sprite := range g.Sprites {
     }
 }
 
+
+ // render ammo pickups
+for _, pickup := range g.AmmoPickups {
+    if !pickup.Active {
+        continue
+    }
+    dx := pickup.X - g.PlayerX
+    dy := pickup.Y - g.PlayerY
+    spriteDist := math.Sqrt(dx*dx + dy*dy)
+    spriteAngle := math.Atan2(dy, dx) - g.Angle
+
+    for spriteAngle > math.Pi { spriteAngle -= 2 * math.Pi }
+    for spriteAngle < -math.Pi { spriteAngle += 2 * math.Pi }
+
+    if math.Abs(spriteAngle) < fov/2 {
+        spriteScreenX := int((0.5 + spriteAngle/fov) * float64(ScreenWidth))
+        spriteHeight := int(float64(ScreenHeight) / spriteDist) / 2
+        spriteWidth := spriteHeight
+
+        yStart := (ScreenHeight - spriteHeight) / 2
+        yEnd := (ScreenHeight + spriteHeight) / 2
+        xStart := spriteScreenX - spriteWidth/2
+        xEnd := spriteScreenX + spriteWidth/2
+
+        if yStart < 0 { yStart = 0 }
+        if yEnd > ScreenHeight { yEnd = ScreenHeight }
+        if xStart < 0 { xStart = 0 }
+        if xEnd > ScreenWidth { xEnd = ScreenWidth }
+
+        for sx := xStart; sx < xEnd; sx++ {
+            if spriteDist < zBuffer[sx] {
+                for sy := yStart; sy < yEnd; sy++ {
+                    idx := (sy*ScreenWidth + sx) * 4
+                    g.Pixels[idx+0] = 255
+                    g.Pixels[idx+1] = 255
+                    g.Pixels[idx+2] = 0
+                    g.Pixels[idx+3] = 255
+                }
+            }
+        }
+    }
+}
+
+
+
+
+
    // draw crosshair
 cx := ScreenWidth / 2
 cy := ScreenHeight / 2
