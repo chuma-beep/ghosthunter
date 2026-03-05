@@ -1,9 +1,8 @@
 package engine
 
 import (
-     "fmt"
-	"math"
-
+    "fmt"
+	  "math"
     "github.com/hajimehoshi/ebiten/v2"
     "github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
@@ -235,7 +234,17 @@ for i := -5; i <= 5; i++ {
     g.Pixels[idx+3] = 255
 }
 
+speed := 0.005 + float64(g.Wave)*0.002
 
+for i := range g.Sprites {
+    dx := g.PlayerX - g.Sprites[i].X
+    dy := g.PlayerY - g.Sprites[i].Y
+    dist := math.Sqrt(dx*dx + dy*dy)
+    if dist > 0.5 {
+        g.Sprites[i].X += (dx / dist) * speed
+        g.Sprites[i].Y += (dy / dist) * speed
+    }
+}
 
 
 // screen flash when taking damage

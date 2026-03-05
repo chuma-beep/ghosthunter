@@ -122,7 +122,7 @@ if len(g.Sprites) == 0 {
     if g.RespawnTimer > 180 {
         g.Wave++
         count := 3 + g.Wave
-        speed := 0.005 + float64(g.Wave)*0.002
+        // speed := 0.005 + float64(g.Wave)*0.002
         positions := [][2]float64{
             {6.0, 6.0},
             {10.0, 4.0},
@@ -139,7 +139,6 @@ if len(g.Sprites) == 0 {
                 Y: positions[i][1],
             })
         }
-        _ = speed
         g.RespawnTimer = 0
     }
 }
