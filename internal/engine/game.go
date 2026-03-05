@@ -3,6 +3,7 @@ package engine
 import (
     "math"
     "github.com/hajimehoshi/ebiten/v2"
+    "github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 type Game struct {
@@ -92,24 +93,23 @@ if g.Health <= 0{
 
 
 // shooting
-if ebiten.IsKeyPressed(ebiten.KeySpace) {
+if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+    PlaySound("assets/shoot.wav")
     for i := len(g.Sprites) - 1; i >= 0; i-- {
         dx := g.Sprites[i].X - g.PlayerX
         dy := g.Sprites[i].Y - g.PlayerY
         dist := math.Sqrt(dx*dx + dy*dy)
-
         spriteAngle := math.Atan2(dy, dx) - g.Angle
         for spriteAngle > math.Pi { spriteAngle -= 2 * math.Pi }
         for spriteAngle < -math.Pi { spriteAngle += 2 * math.Pi }
-
         if math.Abs(spriteAngle) < 0.2 && dist < 10 {
             g.Sprites = append(g.Sprites[:i], g.Sprites[i+1:]...)
-		        g.Score++
-            PlaySound("assets/shoot.wav")
+            g.Score++
         }
     }
-
 }
+
+
 
   // respawn ghosts when all are dead
 if len(g.Sprites) == 0 {
