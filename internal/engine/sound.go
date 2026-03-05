@@ -7,6 +7,7 @@ import(
 
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/audio/wav"
+  "github.com/hajimehoshi/ebiten/v2/audio/mp3"
 )
 
 var audioContext *audio.Context 
@@ -40,4 +41,28 @@ func PlaySound(path string) {
 	player.Play()
 }
 
+var musicPlayer *audio.Player
 
+func PlayMusic(path string) {
+    f, err := os.ReadFile(path)
+    if err != nil {
+        log.Println("music error:", err)
+        return
+    }
+
+    stream, err := mp3.DecodeWithoutResampling(bytes.NewReader(f))
+    if err != nil {
+        log.Println("music decode error:", err)
+        return
+    }
+
+    loop := audio.NewInfiniteLoop(stream, stream.Length())
+
+    musicPlayer, err = audioContext.NewPlayer(loop)
+    if err != nil {
+        log.Println("music player error:", err)
+        return
+    }
+
+    musicPlayer.Play()
+}
