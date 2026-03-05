@@ -16,7 +16,9 @@ type Game struct {
     RespawnTimer int
     Health      int
 		DamageFlash int
-		Wave     int 
+		Wave     int
+    GunKick int
+		Ammo         int
 }
 
 func NewGame() *Game {
@@ -26,6 +28,7 @@ func NewGame() *Game {
         PlayerY: 8.0,
         Angle:   0.0,
 				Wave:    1,
+				Ammo:    10,
 		Health: 100,
 		Sprites: []Sprite{
          {X: 6.0, Y: 6.0, VX: 0.0, VY: 0.0},
@@ -58,7 +61,9 @@ func (g *Game) Update() error {
             g.PlayerY = newY
         }
     }
-
+if g.GunKick > 0 {
+    g.GunKick--
+}
 
 // move sprites toward player
 for i := range g.Sprites {
@@ -78,6 +83,13 @@ for _, sprite := range g.Sprites {
 	if dist < 0.8{
 	    g.Health -= 1
       g.DamageFlash = 10
+      // knockback — push player away from ghost
+        newX := g.PlayerX - (dx/dist) * 2.0
+        newY := g.PlayerY - (dy/dist) * 2.0
+        if WorldMap[int(newY)][int(newX)] == 0 {
+            g.PlayerX = newX
+            g.PlayerY = newY
+        }
 	}
 }
 
@@ -98,18 +110,22 @@ if g.Health <= 0{
 
 // shooting
 if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-    PlaySound("assets/shoot.wav")
-    for i := len(g.Sprites) - 1; i >= 0; i-- {
-        dx := g.Sprites[i].X - g.PlayerX
-        dy := g.Sprites[i].Y - g.PlayerY
-        dist := math.Sqrt(dx*dx + dy*dy)
-        spriteAngle := math.Atan2(dy, dx) - g.Angle
-        for spriteAngle > math.Pi { spriteAngle -= 2 * math.Pi }
-        for spriteAngle < -math.Pi { spriteAngle += 2 * math.Pi }
-        if math.Abs(spriteAngle) < 0.2 && dist < 10 {
-            g.Sprites = append(g.Sprites[:i], g.Sprites[i+1:]...)
-            g.Score++
-						PlaySound("assets/ghost.wav")
+    if g.Ammo > 0 {
+			 g.GunKick = 8
+        PlaySound("assets/shoot.wav")
+        g.Ammo--
+        for i := len(g.Sprites) - 1; i >= 0; i-- {
+            dx := g.Sprites[i].X - g.PlayerX
+            dy := g.Sprites[i].Y - g.PlayerY
+            dist := math.Sqrt(dx*dx + dy*dy)
+            spriteAngle := math.Atan2(dy, dx) - g.Angle
+            for spriteAngle > math.Pi { spriteAngle -= 2 * math.Pi }
+            for spriteAngle < -math.Pi { spriteAngle += 2 * math.Pi }
+            if math.Abs(spriteAngle) < 0.2 && dist < 10 {
+                g.Sprites = append(g.Sprites[:i], g.Sprites[i+1:]...)
+                g.Score++
+                PlaySound("assets/ghost.wav")
+            }
         }
     }
 }

@@ -64,3 +64,35 @@ func LoadSpriteTexture(path string) {
 	}
 
 }
+
+
+
+
+const gunTexWidth = 64
+const gunTexHeight = 64
+
+var gunTexture [gunTexWidth * gunTexHeight * 4]byte
+
+func LoadGun(path string) {
+    f, err := os.Open(path)
+    if err != nil {
+        panic(err)
+    }
+    defer f.Close()
+
+    img, _, err := image.Decode(f)
+    if err != nil {
+        panic(err)
+    }
+
+    for y := 0; y < gunTexHeight; y++ {
+        for x := 0; x < gunTexWidth; x++ {
+            r, g, b, a := img.At(x, y).RGBA()
+            idx := (y*gunTexWidth + x) * 4
+            gunTexture[idx+0] = byte(r >> 8)
+            gunTexture[idx+1] = byte(g >> 8)
+            gunTexture[idx+2] = byte(b >> 8)
+            gunTexture[idx+3] = byte(a >> 8)
+        }
+    }
+}

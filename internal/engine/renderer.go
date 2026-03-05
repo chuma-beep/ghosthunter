@@ -71,6 +71,41 @@ for i := 0; i < 10; i++ {
 
 }
 
+
+
+func (g *Game) DrawGun() {
+    gunWidth := 64
+    gunHeight := 64
+    startX := (ScreenWidth - gunWidth) / 2
+    startY := ScreenHeight - gunHeight + g.GunKick
+
+    for y := 0; y < gunHeight; y++ {
+        for x := 0; x < gunWidth; x++ {
+            texIdx := (y*gunWidth + x) * 4
+            a := gunTexture[texIdx+3]
+            if a > 128 {
+                px := startX + x
+                py := startY + y
+                if px >= 0 && px < ScreenWidth && py >= 0 && py < ScreenHeight {
+                    idx := (py*ScreenWidth + px) * 4
+                    g.Pixels[idx+0] = gunTexture[texIdx+0]
+                    g.Pixels[idx+1] = gunTexture[texIdx+1]
+                    g.Pixels[idx+2] = gunTexture[texIdx+2]
+                    g.Pixels[idx+3] = 255
+                }
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
 func (g *Game) DrawHUD() {
     // health bar background
     barWidth := 100
@@ -259,7 +294,7 @@ if g.DamageFlash > 0 {
 
 
 
-
+    g.DrawGun()
     g.DrawHUD()
     g.DrawMinimap()
     screen.ReplacePixels(g.Pixels)
@@ -268,8 +303,8 @@ if g.DamageFlash > 0 {
 		ebitenutil.DebugPrint(screen, "GAME OVER") 
 	}else{
 
-		ebitenutil.DebugPrint(screen, fmt.Sprintf("Wave: %d Score: %d Health: %d", g.Wave, g.Score, g.Health))
-  }
+     ebitenutil.DebugPrint(screen, fmt.Sprintf("Wave: %d  Score: %d  Health: %d  Ammo: %d", g.Wave, g.Score, g.Health, g.Ammo))
+	 }
 }
 
 
