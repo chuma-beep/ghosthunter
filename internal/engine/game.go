@@ -16,6 +16,7 @@ type Game struct {
     RespawnTimer int
     Health      int
 		DamageFlash int
+		Wave     int 
 }
 
 func NewGame() *Game {
@@ -24,6 +25,7 @@ func NewGame() *Game {
         PlayerX: 8.0,
         PlayerY: 8.0,
         Angle:   0.0,
+				Wave:    1,
 		Health: 100,
 		Sprites: []Sprite{
          {X: 6.0, Y: 6.0, VX: 0.0, VY: 0.0},
@@ -118,16 +120,29 @@ if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
 if len(g.Sprites) == 0 {
     g.RespawnTimer++
     if g.RespawnTimer > 180 {
-        g.Sprites = []Sprite{
-            {X: 6.0, Y: 6.0},
-            {X: 10.0, Y: 4.0},
-            {X: 3.0, Y: 12.0},
+        g.Wave++
+        count := 3 + g.Wave
+        speed := 0.005 + float64(g.Wave)*0.002
+        positions := [][2]float64{
+            {6.0, 6.0},
+            {10.0, 4.0},
+            {3.0, 12.0},
+            {12.0, 12.0},
+            {8.0, 3.0},
+            {2.0, 8.0},
+            {13.0, 7.0},
         }
+        g.Sprites = []Sprite{}
+        for i := 0; i < count && i < len(positions); i++ {
+            g.Sprites = append(g.Sprites, Sprite{
+                X: positions[i][0],
+                Y: positions[i][1],
+            })
+        }
+        _ = speed
         g.RespawnTimer = 0
     }
 }
-
-
  if g.Health <= 0 {
 	 g.Health = 0 
 	 g.Sprites = []Sprite{}

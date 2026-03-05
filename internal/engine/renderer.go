@@ -259,7 +259,7 @@ if g.DamageFlash > 0 {
 		ebitenutil.DebugPrint(screen, "GAME OVER") 
 	}else{
 
-		ebitenutil.DebugPrint(screen, fmt.Sprintf("Score: %d Health: %d", g.Score, g.Health))
+		ebitenutil.DebugPrint(screen, fmt.Sprintf("Wave: %d Score: %d Health: %d", g.Wave, g.Score, g.Health))
   }
 }
 
