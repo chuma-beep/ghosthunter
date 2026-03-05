@@ -6,6 +6,8 @@ type Sprite struct{
 	Y float64
 	VX float64
 	VY float64
+    FadeTimer int 
+	Dead bool
 }
 
 type AmmoPickup struct {
