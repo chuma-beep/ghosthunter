@@ -26,6 +26,7 @@ type Game struct {
     Ammo         int
     AmmoPickups  []AmmoPickup
     GameState    int
+    HighScore    int
 }
 
 func NewGame() *Game {
@@ -225,11 +226,15 @@ func (g *Game) Update() error {
         }
     }
 
-    // check health
-    if g.Health <= 0 {
-        g.GameState = 2
-        return nil
+    // check health and save scores 
+	if g.Health <= 0 {
+    if g.Score > g.HighScore {
+        g.HighScore = g.Score
+        SaveHighScore(g.HighScore)
     }
+    g.GameState = 2
+    return nil
+}
 
     return nil
 }
