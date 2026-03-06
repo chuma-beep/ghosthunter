@@ -67,7 +67,6 @@ pdx := g.PlayerX - portalX
 pdy := g.PlayerY - portalY
 portalDist := math.Sqrt(pdx*pdx + pdy*pdy)
 if portalDist < 0.8 {
-    fmt.Println("PORTAL TRIGGERED", g.CurrentMap)
     if g.CurrentMap == 0 {
         g.CurrentMap = 1
     } else {
