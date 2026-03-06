@@ -142,6 +142,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
   }
 
 
+
+
 	// clear to black
     for i := range g.Pixels {
         g.Pixels[i] = 0
@@ -402,6 +404,50 @@ for _, pickup := range g.AmmoPickups {
 }
 
 
+
+// render portal
+portalX, portalY := 13.0, 1.0
+dx := portalX - g.PlayerX
+dy := portalY - g.PlayerY
+portalDist := math.Sqrt(dx*dx + dy*dy)
+portalAngle := math.Atan2(dy, dx) - g.Angle
+
+for portalAngle > math.Pi { portalAngle -= 2 * math.Pi }
+for portalAngle < -math.Pi { portalAngle += 2 * math.Pi }
+
+if math.Abs(portalAngle) < fov/2 {
+    spriteScreenX := int((0.5 + portalAngle/fov) * float64(ScreenWidth))
+    portalHeight := int(float64(ScreenHeight) / portalDist)
+    portalWidth := portalHeight / 2
+
+    yStart := (ScreenHeight - portalHeight) / 2
+    yEnd := (ScreenHeight + portalHeight) / 2
+    xStart := spriteScreenX - portalWidth/2
+    xEnd := spriteScreenX + portalWidth/2
+
+    if yStart < 0 { yStart = 0 }
+    if yEnd > ScreenHeight { yEnd = ScreenHeight }
+    if xStart < 0 { xStart = 0 }
+    if xEnd > ScreenWidth { xEnd = ScreenWidth }
+
+    for sx := xStart; sx < xEnd; sx++ {
+        if portalDist < zBuffer[sx] {
+            for sy := yStart; sy < yEnd; sy++ {
+                // glowing purple portal effect
+                t := float64(sy-yStart) / float64(yEnd-yStart)
+                idx := (sy*ScreenWidth + sx) * 4
+                g.Pixels[idx+0] = uint8(150 + 50*t)
+                g.Pixels[idx+1] = 0
+                g.Pixels[idx+2] = uint8(200 + 55*t)
+                g.Pixels[idx+3] = 255
+            }
+        }
+    }
+}
+
+
+
+
    // draw crosshair
 cx := ScreenWidth / 2
 cy := ScreenHeight / 2
@@ -438,10 +484,5 @@ if g.DamageFlash > 0 {
 		ebitenutil.DebugPrint(screen, fmt.Sprintf("Wave: %d  Score: %d  Best: %d  Health: %d  Ammo: %d", g.Wave, g.Score, g.HighScore, g.Health, g.Ammo))
    }	 
 }
-
-
-
-
-
 
 
