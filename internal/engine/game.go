@@ -23,6 +23,7 @@ type Game struct {
     HighScore    int
     CurrentMap   int 
     Entities     []Entity
+    LevelNameTimer int
 }
 
 func NewGame() *Game {
@@ -55,7 +56,12 @@ func (g *Game) Update() error {
         if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
             g.GameState = 1
         }
-        return nil
+
+     if g.LevelNameTimer > 0 {
+        g.LevelNameTimer--
+     }
+
+		return nil
     }
 
 
@@ -70,7 +76,8 @@ if portalDist < 0.8 {
     g.CurrentMap = (g.CurrentMap + 1) % 5
     g.PlayerX = 2.0
     g.PlayerY = 2.0
-    if g.CurrentMap == 0 || g.CurrentMap == 1 {
+    g.LevelNameTimer = 180 //3 secs 
+	if g.CurrentMap == 0 || g.CurrentMap == 1 {
         g.Entities = []Entity{
             {X: 6.0, Y: 6.0, Type: EntityGhost, Health: 1, Speed: 0.005, Damage: 1},
             {X: 10.0, Y: 4.0, Type: EntityGhost, Health: 1, Speed: 0.005, Damage: 1},

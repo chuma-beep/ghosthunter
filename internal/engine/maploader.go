@@ -8,7 +8,7 @@ import (
 type MapData struct {
     Width  int     `json:"width"`
     Height int     `json:"height"`
-    Name   int     `json:"name"`
+    Name   string     `json:"name"`
 	Tiles  [][]int `json:"tiles"`
 }
 

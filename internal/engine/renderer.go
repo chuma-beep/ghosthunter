@@ -482,7 +482,14 @@ if g.DamageFlash > 0 {
     g.DrawHUD()
     g.DrawMinimap()
     screen.ReplacePixels(g.Pixels)
-    
+     
+
+    if g.LevelNameTimer > 0 {
+      ebitenutil.DebugPrint(screen, fmt.Sprintf("\n\n\n\n\n\n\n          %s", MapNames[g.CurrentMap]))
+      g.LevelNameTimer--
+}
+
+
 	if g.Health <= 0{
 		ebitenutil.DebugPrint(screen, "GAME OVER") 
 	}else{
