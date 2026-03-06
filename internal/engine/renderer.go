@@ -96,8 +96,6 @@ func (g *Game) DrawGun() {
 }
 
 
-
-
 //health bar 
 func (g *Game) DrawHUD() {
     // health bar background
@@ -131,26 +129,17 @@ func (g *Game) DrawHUD() {
 
 
 func (g *Game) Draw(screen *ebiten.Image) {
-
    
      if g.GameState == 0 {
     ebitenutil.DebugPrint(screen, "GHOST HUNTER\n\nPress SPACE to start\n\nArrow keys to move\nSPACE to shoot")
     return
 }
 
-if g.GameState == 2 {
-    ebitenutil.DebugPrint(screen, fmt.Sprintf("GAME OVER\nScore: %d\nWave: %d\n\nPress R to restart", g.Score, g.Wave))
-    return
-} 
-
-
-
 
    if g.GameState == 2 {
-    screen.Fill(nil)
     ebitenutil.DebugPrint(screen, fmt.Sprintf("GAME OVER\nScore: %d\nWave: %d\n\nPress R to restart", g.Score, g.Wave))
     return
-}
+  }
 
 
 	// clear to black
@@ -211,27 +200,81 @@ if g.GameState == 2 {
            g.Pixels[idx+2] = uint8(float64(tex[texIdx+2]) / distance)
            g.Pixels[idx+3] = 255
         }
-for y := 0; y < yStart; y++ { 
-    idx := (y*ScreenWidth + x) * 4
+    	
+
+//
+// for y := 0; y < yStart; y++ { 
+//     idx := (y*ScreenWidth + x) * 4
+//     if g.CurrentMap == 0 {
+//         g.Pixels[idx+0] = 50
+//         g.Pixels[idx+1] = 50
+//         g.Pixels[idx+2] = 139
+//     } else {
+//         g.Pixels[idx+0] = 0
+//         g.Pixels[idx+1] = 100
+//         g.Pixels[idx+2] = 0
+//     }
+//     g.Pixels[idx+3] = 255
+// }
+//         for y := yEnd; y < ScreenHeight; y++ {
+//             idx := (y*ScreenWidth + x) * 4
+//             g.Pixels[idx+0] = 139
+//             g.Pixels[idx+1] = 50
+//             g.Pixels[idx+2] = 50
+//             g.Pixels[idx+3] = 255
+//         }
+//     }
+//
+
+
+  //ceiling loop
+for y := 0; y < yStart; y++ {
+    // ceiling texture
+    var ceilTex []byte
     if g.CurrentMap == 0 {
-        g.Pixels[idx+0] = 50
-        g.Pixels[idx+1] = 50
-        g.Pixels[idx+2] = 139
+        ceilTex = FloorTexture2[:]
     } else {
-        g.Pixels[idx+0] = 0
-        g.Pixels[idx+1] = 100
-        g.Pixels[idx+2] = 0
+        ceilTex = FloorTexture[:]
     }
+    rowDist := float64(ScreenHeight) / float64(ScreenHeight - 2*y)
+    floorX := g.PlayerX + rowDist*math.Cos(rayAngle)
+    floorY := g.PlayerY + rowDist*math.Sin(rayAngle)
+    texX := int(floorX*float64(TexSize)) & (TexSize - 1)
+    texY := int(floorY*float64(TexSize)) & (TexSize - 1)
+    texIdx := (texY*TexSize + texX) * 4
+    brightness := 0.5
+    idx := (y*ScreenWidth + x) * 4
+    g.Pixels[idx+0] = uint8(float64(ceilTex[texIdx+0]) * brightness)
+    g.Pixels[idx+1] = uint8(float64(ceilTex[texIdx+1]) * brightness)
+    g.Pixels[idx+2] = uint8(float64(ceilTex[texIdx+2]) * brightness)
     g.Pixels[idx+3] = 255
 }
-        for y := yEnd; y < ScreenHeight; y++ {
-            idx := (y*ScreenWidth + x) * 4
-            g.Pixels[idx+0] = 139
-            g.Pixels[idx+1] = 50
-            g.Pixels[idx+2] = 50
-            g.Pixels[idx+3] = 255
-        }
+
+
+// floor loop 
+for y := yEnd; y < ScreenHeight; y++ {
+    // floor texture
+    var floorTex []byte
+    if g.CurrentMap == 0 {
+        floorTex = FloorTexture[:]
+    } else {
+        floorTex = FloorTexture2[:]
     }
+    rowDist := float64(ScreenHeight) / float64(2*y - ScreenHeight)
+    floorX := g.PlayerX + rowDist*math.Cos(rayAngle)
+    floorY := g.PlayerY + rowDist*math.Sin(rayAngle)
+    texX := int(floorX*float64(TexSize)) & (TexSize - 1)
+    texY := int(floorY*float64(TexSize)) & (TexSize - 1)
+    texIdx := (texY*TexSize + texX) * 4
+    brightness := 0.6
+    idx := (y*ScreenWidth + x) * 4
+    g.Pixels[idx+0] = uint8(float64(floorTex[texIdx+0]) * brightness)
+    g.Pixels[idx+1] = uint8(float64(floorTex[texIdx+1]) * brightness)
+    g.Pixels[idx+2] = uint8(float64(floorTex[texIdx+2]) * brightness)
+    g.Pixels[idx+3] = 255
+}
+
+}
 
 
 // sprite rendering
@@ -395,9 +438,13 @@ if g.DamageFlash > 0 {
 	if g.Health <= 0{
 		ebitenutil.DebugPrint(screen, "GAME OVER") 
 	}else{
-
-
 		ebitenutil.DebugPrint(screen, fmt.Sprintf("Wave: %d  Score: %d  Best: %d  Health: %d  Ammo: %d", g.Wave, g.Score, g.HighScore, g.Health, g.Ammo))
-	 }
+   }	 
 }
+
+
+
+
+
+
 

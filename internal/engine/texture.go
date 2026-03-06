@@ -72,8 +72,8 @@ func LoadTexture2(path string){
 
 
 // floor FloorTexture 
-var floorTexture [TexSize * TexSize * 4]byte
-var floorTexture2 [TexSize * TexSize * 4]byte
+var FloorTexture [TexSize * TexSize * 4]byte
+var FloorTexture2 [TexSize * TexSize * 4]byte
 
 func LoadFloor(path string, tex *[TexSize * TexSize * 4]byte) {
     f, err := os.Open(path)
