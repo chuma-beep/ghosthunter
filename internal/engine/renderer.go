@@ -16,31 +16,36 @@ func min(a, b int) int {
 }
 
 
-func (g *Game) DrawMinimap() {
-    cellSize := 4
 
-    for row := 0; row < 16; row++ {
-        for col := 0; col < 16; col++ {
+func (g *Game) DrawMinimap() {
+    cellSize := 2
+    mapW := GetMapWidth(g.CurrentMap)
+    mapH := GetMapHeight(g.CurrentMap)
+
+    for row := 0; row < mapH; row++ {
+        for col := 0; col < mapW; col++ {
             var r, gr, b uint8
             if GetMap(g.CurrentMap)[row][col] == 1 {
-                r, gr, b = 255, 255, 255 // wall
+                r, gr, b = 255, 255, 255
             } else {
-                r, gr, b = 50, 50, 50 // empty
+                r, gr, b = 50, 50, 50
             }
-
             for py := 0; py < cellSize; py++ {
                 for px := 0; px < cellSize; px++ {
                     x := col*cellSize + px
                     y := row*cellSize + py
-                    idx := (y*ScreenWidth + x) * 4
-                    g.Pixels[idx+0] = r
-                    g.Pixels[idx+1] = gr
-                    g.Pixels[idx+2] = b
-                    g.Pixels[idx+3] = 255
+                    if x < ScreenWidth && y < ScreenHeight {
+                        idx := (y*ScreenWidth + x) * 4
+                        g.Pixels[idx+0] = r
+                        g.Pixels[idx+1] = gr
+                        g.Pixels[idx+2] = b
+                        g.Pixels[idx+3] = 255
+                    }
                 }
             }
         }
     }
+
 
 
 	// draw player
