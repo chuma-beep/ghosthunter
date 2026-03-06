@@ -23,6 +23,7 @@ type Game struct {
     GameState    int
     HighScore    int
     CurrentMap   int 
+    Entities     []Entity
 }
 
 func NewGame() *Game {
@@ -46,7 +47,12 @@ func NewGame() *Game {
             {X: 11.0, Y: 11.0, Active: true},
             {X: 3.0, Y: 9.0, Active: true},
         },
-    }
+        Entities: []Entity{
+            {X: 6.0, Y: 6.0, Type: EntityGhost, Health: 1, Speed: 0.005},
+            {X: 10.0, Y: 4.0, Type: EntityGhost, Health: 1, Speed: 0.005},
+            {X: 3.0, Y: 12.0, Type: EntityGhost, Health: 1, Speed: 0.005},
+        },
+	}
 }
 
 func (g *Game) Update() error {
