@@ -1,7 +1,8 @@
 package engine
 
 import (
-	  "math"
+     "fmt"	
+	"math"
     "github.com/hajimehoshi/ebiten/v2"
     "github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
