@@ -255,6 +255,17 @@ for _, sprite := range g.Entities {
     for spriteAngle < -math.Pi { spriteAngle += 2 * math.Pi }
 
     if math.Abs(spriteAngle) < fov/2 {
+        // pick texture based on entity type
+        var tex []byte
+        var texSize int
+        if sprite.Type == EntityWizard {
+            tex = wizardTexture[:]
+            texSize = wizardTexSize
+        } else {
+            tex = spriteTexture[:]
+            texSize = spriteTexSize
+        }
+
         spriteScreenX := int((0.5 + spriteAngle/fov) * float64(ScreenWidth))
         spriteHeight := int(float64(ScreenHeight) / spriteDist)
         spriteWidth := spriteHeight
@@ -271,16 +282,22 @@ for _, sprite := range g.Entities {
 
         for sx := xStart; sx < xEnd; sx++ {
             if spriteDist < zBuffer[sx] {
-                texX := (sx - xStart) * spriteTexSize / spriteWidth
+                texX := (sx - xStart) * texSize / spriteWidth
                 for sy := yStart; sy < yEnd; sy++ {
-                    texY := (sy - yStart) * spriteTexSize / spriteHeight
-                    texIdx := (texY*spriteTexSize + texX) * 4
-                    a := spriteTexture[texIdx+3]
+                    texY := (sy - yStart) * texSize / spriteHeight
+                    texIdx := (texY*texSize + texX) * 4
+                    a := tex[texIdx+3]
                     if a > 128 {
+                        var fade float64
+                        if sprite.FadeTimer > 0 {
+                            fade = float64(sprite.FadeTimer) / 20.0
+                        } else {
+                            fade = 1.0
+                        }
                         idx := (sy*ScreenWidth + sx) * 4
-                        g.Pixels[idx+0] = spriteTexture[texIdx+0]
-                        g.Pixels[idx+1] = spriteTexture[texIdx+1]
-                        g.Pixels[idx+2] = spriteTexture[texIdx+2]
+                        g.Pixels[idx+0] = uint8(float64(tex[texIdx+0]) * fade)
+                        g.Pixels[idx+1] = uint8(float64(tex[texIdx+1]) * fade)
+                        g.Pixels[idx+2] = uint8(float64(tex[texIdx+2]) * fade)
                         g.Pixels[idx+3] = 255
                     }
                 }
@@ -288,6 +305,9 @@ for _, sprite := range g.Entities {
         }
     }
 }
+
+
+
 
 //enitiy speed 
 for i := range g.Entities {

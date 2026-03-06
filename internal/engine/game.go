@@ -65,20 +65,27 @@ portalX, portalY := 13.0, 1.0
 pdx := g.PlayerX - portalX
 pdy := g.PlayerY - portalY
 portalDist := math.Sqrt(pdx*pdx + pdy*pdy)
+
 if portalDist < 0.8 {
     if g.CurrentMap == 0 {
         g.CurrentMap = 1
+        g.Entities = []Entity{
+            {X: 6.0, Y: 6.0, Type: EntityWizard, Health: 2, Speed: 0.003, Damage: 2},
+            {X: 10.0, Y: 4.0, Type: EntityWizard, Health: 2, Speed: 0.003, Damage: 2},
+            {X: 3.0, Y: 12.0, Type: EntityWizard, Health: 2, Speed: 0.003, Damage: 2},
+        }
     } else {
         g.CurrentMap = 0
+        g.Entities = []Entity{
+            {X: 6.0, Y: 6.0, Type: EntityGhost, Health: 1, Speed: 0.005, Damage: 1},
+            {X: 10.0, Y: 4.0, Type: EntityGhost, Health: 1, Speed: 0.005, Damage: 1},
+            {X: 3.0, Y: 12.0, Type: EntityGhost, Health: 1, Speed: 0.005, Damage: 1},
+        }
     }
     g.PlayerX = 2.0
     g.PlayerY = 2.0
-    g.Entities = []Entity{
-    {X: 6.0, Y: 6.0, Type: EntityGhost, Health: 1, Speed: 0.005, Damage: 1},
-    {X: 10.0, Y: 4.0, Type: EntityGhost, Health: 1, Speed: 0.005, Damage: 1},
-    {X: 3.0, Y: 12.0, Type: EntityGhost, Health: 1, Speed: 0.005, Damage: 1},
 }
-}
+
 
 
 
