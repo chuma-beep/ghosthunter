@@ -103,6 +103,34 @@ func LoadSpriteTexture(path string) {
 
 
 
+//wizard entity 
+var wizardTexture [64 * 64 * 4]byte
+var wizardTexSize = 64
+
+func LoadWizard(path string) {
+    f, err := os.Open(path)
+    if err != nil {
+        panic(err)
+    }
+    defer f.Close()
+
+    img, _, err := image.Decode(f)
+    if err != nil {
+        panic(err)
+    }
+
+    for y := 0; y < 64; y++ {
+        for x := 0; x < 64; x++ {
+            r, g, b, a := img.At(x, y).RGBA()
+            idx := (y*64 + x) * 4
+            wizardTexture[idx+0] = byte(r >> 8)
+            wizardTexture[idx+1] = byte(g >> 8)
+            wizardTexture[idx+2] = byte(b >> 8)
+            wizardTexture[idx+3] = byte(a >> 8)
+        }
+    }
+}
+
 
 const gunTexWidth = 64
 const gunTexHeight = 64

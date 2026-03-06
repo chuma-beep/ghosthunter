@@ -16,6 +16,7 @@ func main() {
     engine.LoadTexture("assets/wall.png")
     engine.LoadTexture2("assets/wall2.png")
 	engine.LoadSpriteTexture("assets/sprite_real.png")
+	engine.LoadWizard("assets/wizard.png")
     engine.LoadGun("assets/gun.png")
     safeInitAudio()
     ebiten.SetWindowSize(engine.ScreenWidth*2, engine.ScreenHeight*2)

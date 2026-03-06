@@ -66,9 +66,6 @@ for i := 0; i < 10; i++ {
     }
 }
 
-
-
-
 }
 
 
@@ -135,6 +132,26 @@ func (g *Game) DrawHUD() {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 
+   
+     if g.GameState == 0 {
+    ebitenutil.DebugPrint(screen, "GHOST HUNTER\n\nPress SPACE to start\n\nArrow keys to move\nSPACE to shoot")
+    return
+}
+
+if g.GameState == 2 {
+    ebitenutil.DebugPrint(screen, fmt.Sprintf("GAME OVER\nScore: %d\nWave: %d\n\nPress R to restart", g.Score, g.Wave))
+    return
+} 
+
+
+
+
+   if g.GameState == 2 {
+    screen.Fill(nil)
+    ebitenutil.DebugPrint(screen, fmt.Sprintf("GAME OVER\nScore: %d\nWave: %d\n\nPress R to restart", g.Score, g.Wave))
+    return
+}
+
 
 	// clear to black
     for i := range g.Pixels {
@@ -193,12 +210,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
            g.Pixels[idx+1] = uint8(float64(tex[texIdx+1]) / distance)
            g.Pixels[idx+2] = uint8(float64(tex[texIdx+2]) / distance)
            g.Pixels[idx+3] = 255
-
-
-
-
         }
-for y := 0; y < yStart; y++ {
+for y := 0; y < yStart; y++ { 
     idx := (y*ScreenWidth + x) * 4
     if g.CurrentMap == 0 {
         g.Pixels[idx+0] = 50
@@ -219,20 +232,20 @@ for y := 0; y < yStart; y++ {
             g.Pixels[idx+3] = 255
         }
     }
-
-     if g.GameState == 0 {
-    ebitenutil.DebugPrint(screen, "GHOST HUNTER\n\nPress SPACE to start\n\nArrow keys to move\nSPACE to shoot")
-    return
-}
-
-if g.GameState == 2 {
-    ebitenutil.DebugPrint(screen, fmt.Sprintf("GAME OVER\nScore: %d\nWave: %d\n\nPress R to restart", g.Score, g.Wave))
-    return
-} 
+//
+//      if g.GameState == 0 {
+//     ebitenutil.DebugPrint(screen, "GHOST HUNTER\n\nPress SPACE to start\n\nArrow keys to move\nSPACE to shoot")
+//     return
+// }
+//
+// if g.GameState == 2 {
+//     ebitenutil.DebugPrint(screen, fmt.Sprintf("GAME OVER\nScore: %d\nWave: %d\n\nPress R to restart", g.Score, g.Wave))
+//     return
+// } 
 
 
 // sprite rendering
-for _, sprite := range g.Sprites {
+for _, sprite := range g.Entities {
     dx := sprite.X - g.PlayerX
     dy := sprite.Y - g.PlayerY
     spriteDist := math.Sqrt(dx*dx + dy*dy)
@@ -276,6 +289,22 @@ for _, sprite := range g.Sprites {
     }
 }
 
+//enitiy speed 
+for i := range g.Entities {
+    if g.Entities[i].Dead {
+        if g.Entities[i].FadeTimer > 0 {
+            g.Entities[i].FadeTimer--
+        }
+        continue
+    }
+    dx := g.PlayerX - g.Entities[i].X
+    dy := g.PlayerY - g.Entities[i].Y
+    dist := math.Sqrt(dx*dx + dy*dy)
+    if dist > 0.5 {
+        g.Entities[i].X += (dx / dist) * g.Entities[i].Speed
+        g.Entities[i].Y += (dy / dist) * g.Entities[i].Speed
+    }
+}
 
  // render ammo pickups
 for _, pickup := range g.AmmoPickups {
@@ -348,10 +377,6 @@ if g.DamageFlash > 0 {
     }
     g.DamageFlash--
 }
-
-
-
-
     g.DrawGun()
     g.DrawHUD()
     g.DrawMinimap()

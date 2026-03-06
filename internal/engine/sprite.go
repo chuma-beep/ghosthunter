@@ -1,6 +1,16 @@
 package engine
 
 
+
+type EntityType int 
+
+const (
+	EntityGhost EntityType = iota 
+	EntityWizard
+	EntityDemon 
+)
+
+
 type Sprite struct{
 	X float64
 	Y float64
@@ -29,10 +39,5 @@ type Entity struct{
 	Damage int 
 }
 
-type AmmoPickup struct {
-	X float64
-	Y float64
-	Active bool 
-}
 
 
