@@ -11,7 +11,9 @@ type MapData struct {
     Tiles  [][]int `json:"tiles"`
 }
 
-var LoadedMaps [2][16][16]int
+var LoadedMaps [2][][]int
+var MapWidth  [2]int
+var MapHeight [2]int
 
 func LoadMap(path string, index int) {
     f, err := os.ReadFile(path)
@@ -24,9 +26,7 @@ func LoadMap(path string, index int) {
         panic(err)
     }
 
-    for row := 0; row < 16; row++ {
-        for col := 0; col < 16; col++ {
-            LoadedMaps[index][row][col] = data.Tiles[row][col]
-        }
-    }
+    MapWidth[index] = data.Width
+    MapHeight[index] = data.Height
+    LoadedMaps[index] = data.Tiles
 }

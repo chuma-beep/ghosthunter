@@ -402,9 +402,6 @@ for _, pickup := range g.AmmoPickups {
 }
 
 
-
-
-
    // draw crosshair
 cx := ScreenWidth / 2
 cy := ScreenHeight / 2

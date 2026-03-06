@@ -166,7 +166,7 @@ if portalDist < 0.8 {
             g.DamageFlash = 10
             newX := g.PlayerX - (dx/dist) * 1.0
             newY := g.PlayerY - (dy/dist) * 1.0
-            if GetMap(g.CurrentMap)[int(newY)][int(newX)] == 1 {
+            if GetMap(g.CurrentMap)[int(newX)][int(newY)] == 1 {
                 g.PlayerX = newX
                 g.PlayerY = newY
             }
