@@ -182,10 +182,21 @@ func (g *Game) Draw(screen *ebiten.Image) {
             if texY >= TexSize { texY = TexSize - 1 }
             texIdx := (texY*TexSize + texX) * 4
             idx := (y*ScreenWidth + x) * 4
-            g.Pixels[idx+0] = uint8(float64(WallTexture[texIdx+0]) / distance)
-            g.Pixels[idx+1] = uint8(float64(WallTexture[texIdx+1]) / distance)
-            g.Pixels[idx+2] = uint8(float64(WallTexture[texIdx+2]) / distance)
-            g.Pixels[idx+3] = 255
+            
+       var tex []byte
+         if g.CurrentMap == 0 {
+          tex = WallTexture[:]
+          } else {
+           tex = WallTexture2[:]
+          }
+           g.Pixels[idx+0] = uint8(float64(tex[texIdx+0]) / distance)
+           g.Pixels[idx+1] = uint8(float64(tex[texIdx+1]) / distance)
+           g.Pixels[idx+2] = uint8(float64(tex[texIdx+2]) / distance)
+           g.Pixels[idx+3] = 255
+
+
+
+
         }
 for y := 0; y < yStart; y++ {
     idx := (y*ScreenWidth + x) * 4

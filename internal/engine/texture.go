@@ -35,6 +35,42 @@ func LoadTexture(path string) {
 }
 
 
+
+//WallTexture  second room 
+var WallTexture2 [spriteTexSize * spriteTexSize * 4]byte 
+
+
+   
+func LoadTexture2(path string){
+	f, err := os.Open(path)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+
+	img, _, err := image.Decode(f)
+	if err != nil{
+		panic(err)
+	}
+     
+	for y := 0; y < TexSize; y++ {
+		for x := 0; x < TexSize; x++ {
+			r, g, b, a := img.At(x,y).RGBA()
+			idx := (y*TexSize + x) * 4
+			WallTexture2[idx+0] = byte(r >> 8)
+			WallTexture2[idx+1] = byte(g >> 8)
+			WallTexture2[idx+2] = byte(b >> 8)
+			WallTexture2[idx+3] = byte(a >> 8)
+		}
+	}
+
+
+}
+
+
+
+
 const spriteTexSize = 64 
 
 var spriteTexture [spriteTexSize * spriteTexSize * 4]byte 
