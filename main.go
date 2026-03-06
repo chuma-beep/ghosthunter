@@ -19,6 +19,8 @@ func main() {
 	engine.LoadWizard("assets/wizard.png")
     engine.LoadGun("assets/gun.png")
     safeInitAudio()
+    engine.LoadFloor("assets/floor.png", &engine.FloorTexture)
+    engine.LoadFloor("assets/floor2.png", &engine.FloorTexture2)
     ebiten.SetWindowSize(engine.ScreenWidth*2, engine.ScreenHeight*2)
     ebiten.SetWindowTitle("doom-go")
     game := engine.NewGame()

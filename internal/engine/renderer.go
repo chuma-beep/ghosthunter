@@ -69,7 +69,7 @@ for i := 0; i < 10; i++ {
 }
 
 
-
+//gun 
 func (g *Game) DrawGun() {
     gunWidth := 64
     gunHeight := 64
@@ -98,7 +98,7 @@ func (g *Game) DrawGun() {
 
 
 
-
+//health bar 
 func (g *Game) DrawHUD() {
     // health bar background
     barWidth := 100

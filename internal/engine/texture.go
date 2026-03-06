@@ -71,6 +71,37 @@ func LoadTexture2(path string){
 
 
 
+// floor FloorTexture 
+var floorTexture [TexSize * TexSize * 4]byte
+var floorTexture2 [TexSize * TexSize * 4]byte
+
+func LoadFloor(path string, tex *[TexSize * TexSize * 4]byte) {
+    f, err := os.Open(path)
+    if err != nil {
+        panic(err)
+    }
+    defer f.Close()
+
+    img, _, err := image.Decode(f)
+    if err != nil {
+        panic(err)
+    }
+
+    for y := 0; y < TexSize; y++ {
+        for x := 0; x < TexSize; x++ {
+            r, g, b, a := img.At(x, y).RGBA()
+            idx := (y*TexSize + x) * 4
+            tex[idx+0] = byte(r >> 8)
+            tex[idx+1] = byte(g >> 8)
+            tex[idx+2] = byte(b >> 8)
+            tex[idx+3] = byte(a >> 8)
+        }
+    }
+}
+
+
+
+
 const spriteTexSize = 64 
 
 var spriteTexture [spriteTexSize * spriteTexSize * 4]byte 
