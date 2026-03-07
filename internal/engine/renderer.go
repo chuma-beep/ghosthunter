@@ -131,6 +131,35 @@ func (g *Game) DrawHUD() {
             g.Pixels[idx+3] = 255
         }
     }
+
+// ammo bar background
+ammoBarWidth := 100
+ammoBarHeight := 10
+ammoBarX := ScreenWidth - ammoBarWidth - 5
+ammoBarY := ScreenHeight - 20
+for y := ammoBarY; y < ammoBarY+ammoBarHeight; y++ {
+    for x := ammoBarX; x < ammoBarX+ammoBarWidth; x++ {
+        idx := (y*ScreenWidth + x) * 4
+        g.Pixels[idx+0] = 50
+        g.Pixels[idx+1] = 50
+        g.Pixels[idx+2] = 0
+        g.Pixels[idx+3] = 255
+    }
+}
+// ammo bar fill - max ammo is 30
+maxAmmo := 30
+ammoFill := ammoBarWidth * g.Ammo / maxAmmo
+if ammoFill > ammoBarWidth { fillWidth = ammoBarWidth }
+for y := ammoBarY; y < ammoBarY+ammoBarHeight; y++ {
+    for x := ammoBarX; x < ammoBarX+fillWidth; x++ {
+        idx := (y*ScreenWidth + x) * 4
+        g.Pixels[idx+0] = 255
+        g.Pixels[idx+1] = 255
+        g.Pixels[idx+2] = 0
+        g.Pixels[idx+3] = 255
+    }
+}
+
 }
 
 
