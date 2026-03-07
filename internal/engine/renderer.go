@@ -146,19 +146,6 @@ if g.GameState == 2 {
     screen.Fill(color.Black)
     ebitenutil.DebugPrint(screen, fmt.Sprintf("GAME OVER\nScore: %d\nWave: %d\n\nPress R to restart", g.Score, g.Wave))
     return
-
-
-     if g.GameState == 0 {
-    ebitenutil.DebugPrint(screen, "GHOST HUNTER\n\nPress SPACE to start\n\nArrow keys to move\nSPACE to shoot")
-    return
-}
-
-
-   if g.GameState == 2 {
-    ebitenutil.DebugPrint(screen, fmt.Sprintf("GAME OVER\nScore: %d\nWave: %d\n\nPress R to restart", g.Score, g.Wave))
-    return
-  }
-
 }
 
 
@@ -174,13 +161,17 @@ if g.GameState == 2 {
         rayAngle := g.Angle - fov/2 + fov*float64(x)/float64(ScreenWidth)
 
         var distance float64
-        for distance = 0; distance < 20; distance += 0.01 {
-            rayX := g.PlayerX + math.Cos(rayAngle)*distance
-            rayY := g.PlayerY + math.Sin(rayAngle)*distance
-            if GetMap(g.CurrentMap)[int(rayY)][int(rayX)] == 1 {
-                break
-            }
-        }
+    for distance = 0; distance < 32; distance += 0.01 {
+    rayX := g.PlayerX + math.Cos(rayAngle)*distance
+    rayY := g.PlayerY + math.Sin(rayAngle)*distance
+    if int(rayY) < 0 || int(rayY) >= GetMapHeight(g.CurrentMap) ||
+        int(rayX) < 0 || int(rayX) >= GetMapWidth(g.CurrentMap) {
+        break
+    }
+    if GetMap(g.CurrentMap)[int(rayY)][int(rayX)] == 1 {
+        break
+    }
+}
 
         zBuffer[x] = distance
 
@@ -197,7 +188,8 @@ if g.GameState == 2 {
         texX := int(wallX * float64(TexSize))
 
         height := int(float64(ScreenHeight) / distance)
-        yStart := (ScreenHeight - height) / 2
+        if height == 0 { continue }
+		yStart := (ScreenHeight - height) / 2
         yEnd := (ScreenHeight + height) / 2
 
         if yStart < 0 { yStart = 0 }
@@ -220,31 +212,7 @@ if g.GameState == 2 {
            g.Pixels[idx+2] = uint8(float64(tex[texIdx+2]) / distance)
            g.Pixels[idx+3] = 255
         }
-    	
-
-//
-// for y := 0; y < yStart; y++ { 
-//     idx := (y*ScreenWidth + x) * 4
-//     if g.CurrentMap == 0 {
-//         g.Pixels[idx+0] = 50
-//         g.Pixels[idx+1] = 50
-//         g.Pixels[idx+2] = 139
-//     } else {
-//         g.Pixels[idx+0] = 0
-//         g.Pixels[idx+1] = 100
-//         g.Pixels[idx+2] = 0
-//     }
-//     g.Pixels[idx+3] = 255
-// }
-//         for y := yEnd; y < ScreenHeight; y++ {
-//             idx := (y*ScreenWidth + x) * 4
-//             g.Pixels[idx+0] = 139
-//             g.Pixels[idx+1] = 50
-//             g.Pixels[idx+2] = 50
-//             g.Pixels[idx+3] = 255
-//         }
-//     }
-//
+    
 
 
   //ceiling loop
@@ -335,7 +303,8 @@ for _, sprite := range g.Entities {
 
         spriteScreenX := int((0.5 + spriteAngle/fov) * float64(ScreenWidth))
         spriteHeight := int(float64(ScreenHeight) / spriteDist)
-        spriteWidth := spriteHeight
+        if spriteHeight == 0 { continue }
+		spriteWidth := spriteHeight
 
         yStart := (ScreenHeight - spriteHeight) / 2
         yEnd := (ScreenHeight + spriteHeight) / 2
@@ -375,7 +344,6 @@ for _, sprite := range g.Entities {
 
 
 
-// }
 
  // render ammo pickups
 for _, pickup := range g.AmmoPickups {
@@ -393,7 +361,8 @@ for _, pickup := range g.AmmoPickups {
     if math.Abs(spriteAngle) < fov/2 {
         spriteScreenX := int((0.5 + spriteAngle/fov) * float64(ScreenWidth))
         spriteHeight := int(float64(ScreenHeight) / spriteDist) / 2
-        spriteWidth := spriteHeight
+        if spriteHeight == 0 { continue }
+		spriteWidth := spriteHeight
 
         yStart := (ScreenHeight - spriteHeight) / 2
         yEnd := (ScreenHeight + spriteHeight) / 2
@@ -434,7 +403,8 @@ for portalAngle < -math.Pi { portalAngle += 2 * math.Pi }
 if math.Abs(portalAngle) < fov/2 {
     spriteScreenX := int((0.5 + portalAngle/fov) * float64(ScreenWidth))
     portalHeight := int(float64(ScreenHeight) / portalDist)
-    portalWidth := portalHeight / 2
+    if portalHeight == 0 || yEnd == yStart { continue }
+	portalWidth := portalHeight / 2
 
     yStart := (ScreenHeight - portalHeight) / 2
     yEnd := (ScreenHeight + portalHeight) / 2
