@@ -106,7 +106,7 @@ func (g *Game) DrawGun() {
 func (g *Game) DrawHUD() {
     // health bar background
     barWidth := 100
-    barHeight := 10
+    barHeight := 2
     barX := 5
     barY := ScreenHeight - 20
 
@@ -134,7 +134,7 @@ func (g *Game) DrawHUD() {
 
 // ammo bar background
 ammoBarWidth := 100
-ammoBarHeight := 10
+ammoBarHeight := 2
 ammoBarX := ScreenWidth - ammoBarWidth - 5
 ammoBarY := ScreenHeight - 20
 for y := ammoBarY; y < ammoBarY+ammoBarHeight; y++ {
@@ -149,9 +149,9 @@ for y := ammoBarY; y < ammoBarY+ammoBarHeight; y++ {
 // ammo bar fill - max ammo is 30
 maxAmmo := 30
 ammoFill := ammoBarWidth * g.Ammo / maxAmmo
-if ammoFill > ammoBarWidth { fillWidth = ammoBarWidth }
+if ammoFill > ammoBarWidth { ammoFill = ammoBarWidth }
 for y := ammoBarY; y < ammoBarY+ammoBarHeight; y++ {
-    for x := ammoBarX; x < ammoBarX+fillWidth; x++ {
+    for x := ammoBarX; x < ammoBarX+ammoFill; x++ {
         idx := (y*ScreenWidth + x) * 4
         g.Pixels[idx+0] = 255
         g.Pixels[idx+1] = 255
