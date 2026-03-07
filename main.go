@@ -23,7 +23,7 @@ func main() {
 	engine.LoadMap("maps/map3.json", 2)
 	engine.LoadMap("maps/map4.json", 3)
 	engine.LoadMap("maps/map5.json", 4)
-	safeInitAudio()
+	// safeInitAudio()
     engine.LoadFloor("assets/floor.png", &engine.FloorTexture)
     engine.LoadFloor("assets/floor2.png", &engine.FloorTexture2)
     ebiten.SetWindowSize(engine.ScreenWidth*2, engine.ScreenHeight*2)

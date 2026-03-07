@@ -1,7 +1,8 @@
 package engine
 
 import (
-    "math"
+    "fmt"
+	"math"
     "github.com/hajimehoshi/ebiten/v2"
     "github.com/hajimehoshi/ebiten/v2/inpututil"
 )
@@ -43,15 +44,18 @@ func NewGame() *Game {
             {X: 3.0, Y: 9.0, Active: true},
         },
 		Entities: []Entity{
-            {X: 6.0, Y: 6.0, Type: EntityGhost, Health: 1, Speed: 0.005, Damage: 1},
-            {X: 10.0, Y: 4.0, Type: EntityGhost, Health: 1, Speed: 0.005, Damage: 1},
-            {X: 3.0, Y: 12.0, Type: EntityGhost, Health: 1, Speed: 0.005, Damage: 1},
+            {X: 2.0, Y: 2.0, Type: EntityGhost, Health: 1, Speed: 0.05, Damage: 1},
+            {X: 28.0, Y: 2.0, Type: EntityGhost, Health: 1, Speed: 0.05, Damage: 1},
+            {X: 2.0, Y: 28.0, Type: EntityGhost, Health: 1, Speed: 0.05, Damage: 1},
         },
 	}
 }
 
 func (g *Game) Update() error {
-    // start screen
+
+ fmt.Println("Update called, GameState:", g.GameState, "Entities:", len(g.Entities), "Wave:", g.Wave, "eespawnTimer:", g.RespawnTimer)  
+    // fmt.Println("Update called, GameState:", g.GameState, "Entities:", len(g.Entities), "Wave:", g.Wave)
+	// start screen
     if g.GameState == 0 {
         if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
             g.GameState = 1
@@ -65,8 +69,6 @@ func (g *Game) Update() error {
     }
 
 
-
-
 // portal detection
 portalX, portalY := 13.0, 1.0
 pdx := g.PlayerX - portalX
@@ -76,18 +78,19 @@ if portalDist < 0.8 {
     g.CurrentMap = (g.CurrentMap + 1) % 5
     g.PlayerX = 2.0
     g.PlayerY = 2.0
-    g.LevelNameTimer = 180 //3 secs 
+    g.RespawnTimer = 0
+	g.LevelNameTimer = 180 //3 secs 
 	if g.CurrentMap == 0 || g.CurrentMap == 1 {
         g.Entities = []Entity{
-            {X: 6.0, Y: 6.0, Type: EntityGhost, Health: 1, Speed: 0.005, Damage: 1},
-            {X: 10.0, Y: 4.0, Type: EntityGhost, Health: 1, Speed: 0.005, Damage: 1},
-            {X: 3.0, Y: 12.0, Type: EntityGhost, Health: 1, Speed: 0.005, Damage: 1},
+            {X: 6.0, Y: 6.0, Type: EntityGhost, Health: 1, Speed: 0.05, Damage: 1},
+            {X: 10.0, Y: 4.0, Type: EntityGhost, Health: 1, Speed: 0.05, Damage: 1},
+            {X: 3.0, Y: 12.0, Type: EntityGhost, Health: 1, Speed: 0.05, Damage: 1},
         }
     } else {
         g.Entities = []Entity{
-            {X: 6.0, Y: 6.0, Type: EntityWizard, Health: 2, Speed: 0.003, Damage: 2},
-            {X: 10.0, Y: 4.0, Type: EntityWizard, Health: 2, Speed: 0.003, Damage: 2},
-            {X: 3.0, Y: 12.0, Type: EntityWizard, Health: 2, Speed: 0.003, Damage: 2},
+            {X: 6.0, Y: 6.0, Type: EntityWizard, Health: 2, Speed: 0.05, Damage: 2},
+            {X: 10.0, Y: 4.0, Type: EntityWizard, Health: 2, Speed: 0.05, Damage: 2},
+            {X: 3.0, Y: 12.0, Type: EntityWizard, Health: 2, Speed: 0.05, Damage: 2},
         }
     }
 }
@@ -100,11 +103,15 @@ if portalDist < 0.8 {
             g.Score = 0
             g.Ammo = 10
             g.Wave = 1
-            g.GameState = 1
+            g.RespawnTimer = 0
+            g.PlayerX = 8.0
+			g.PlayerY = 8.0
+			g.Angle = 0.0
+			g.GameState = 1
             g.Entities = []Entity{
-                {X: 6.0, Y: 6.0},
-                {X: 10.0, Y: 4.0},
-                {X: 3.0, Y: 12.0},
+               {X: 14.0, Y: 14.0, Type: EntityGhost, Health: 1, Speed: 0.005, Damage: 1}, 
+               {X: 14.0, Y: 2.0, Type: EntityGhost, Health: 1, Speed: 0.005, Damage: 1},
+               {X: 2.0, Y: 14.0, Type: EntityGhost, Health: 1, Speed: 0.005, Damage: 1},
             }
         }
         return nil
@@ -140,22 +147,53 @@ if portalDist < 0.8 {
     }
 
     // move sprites toward player
-    speed := 0.005 + float64(g.Wave)*0.002
-    for i := range g.Entities {
-        if g.Entities[i].Dead {
-            if g.Entities[i].FadeTimer > 0 {
-                g.Entities[i].FadeTimer--
-            }
-            continue
+
+// move sprites toward player
+for i := range g.Entities {
+
+    if g.Entities[i].Dead {
+        if g.Entities[i].FadeTimer > 0 {
+            g.Entities[i].FadeTimer--
         }
-        dx := g.PlayerX - g.Entities[i].X
-        dy := g.PlayerY - g.Entities[i].Y
-        dist := math.Sqrt(dx*dx + dy*dy)
-        if dist > 0.5 {
-            g.Entities[i].X += (dx / dist) * speed
-            g.Entities[i].Y += (dy / dist) * speed
-        }
+        continue
     }
+
+    dx := g.PlayerX - g.Entities[i].X
+    dy := g.PlayerY - g.Entities[i].Y
+    dist := math.Sqrt(dx*dx + dy*dy)
+
+    if dist > 0.5 {
+
+        angle := math.Atan2(dy, dx)
+
+        // slight wobble so enemies don't track perfectly
+        // angle += (rand.Float64() - 0.5) * 0.2
+
+        moveX := math.Cos(angle) * g.Entities[i].Speed
+        moveY := math.Sin(angle) * g.Entities[i].Speed
+
+        g.Entities[i].X += moveX
+        g.Entities[i].Y += moveY
+    }
+}
+
+
+
+// for i := range g.Entities {
+//     if g.Entities[i].Dead {
+//         if g.Entities[i].FadeTimer > 0 {
+//             g.Entities[i].FadeTimer--
+//         }
+//         continue
+//     }
+//     dx := g.PlayerX - g.Entities[i].X
+//     dy := g.PlayerY - g.Entities[i].Y
+//     dist := math.Sqrt(dx*dx + dy*dy)
+//     if dist > 0.5 {
+//         g.Entities[i].X += (dx / dist) * g.Entities[i].Speed
+//         g.Entities[i].Y += (dy / dist) * g.Entities[i].Speed
+//     }
+// }
 
     // damage player when ghost touches them
     for _, sprite := range g.Entities {
@@ -170,7 +208,7 @@ if portalDist < 0.8 {
             g.DamageFlash = 10
             newX := g.PlayerX - (dx/dist) * 1.0
             newY := g.PlayerY - (dy/dist) * 1.0
-            if GetMap(g.CurrentMap)[int(newX)][int(newY)] == 1 {
+            if GetMap(g.CurrentMap)[int(newY)][int(newX)] == 0 {
                 g.PlayerX = newX
                 g.PlayerY = newY
             }
@@ -224,7 +262,8 @@ if portalDist < 0.8 {
         }
     }
 
-    // respawn when all dead
+
+// respawn when all dead
 if len(g.Entities) == 0 {
     g.RespawnTimer++
     if g.RespawnTimer > 180 {
@@ -240,24 +279,29 @@ if len(g.Entities) == 0 {
             {2.0, 8.0},
             {13.0, 7.0},
         }
+        minSpawnDist := 4.0
         g.Entities = []Entity{}
         for i := 0; i < count && i < len(positions); i++ {
+            px, py := positions[i][0], positions[i][1]
+            dx := px - g.PlayerX
+            dy := py - g.PlayerY
+            if math.Sqrt(dx*dx+dy*dy) < minSpawnDist {
+                continue
+            }
             if g.CurrentMap == 0 {
                 g.Entities = append(g.Entities, Entity{
-                    X:      positions[i][0],
-                    Y:      positions[i][1],
+                    X: px, Y: py,
                     Type:   EntityGhost,
                     Health: 1,
-                    Speed:  0.005 + float64(g.Wave)*0.002,
+                    Speed:  0.005 + float64(g.Wave)*0.003,
                     Damage: 1,
                 })
             } else {
                 g.Entities = append(g.Entities, Entity{
-                    X:      positions[i][0],
-                    Y:      positions[i][1],
+                    X: px, Y: py,
                     Type:   EntityWizard,
                     Health: 2,
-                    Speed:  0.003 + float64(g.Wave)*0.001,
+                    Speed:  0.005 + float64(g.Wave)*0.003,
                     Damage: 2,
                 })
             }
@@ -267,8 +311,9 @@ if len(g.Entities) == 0 {
 }
 
 
-    // respawn ammo pickups every 3 waves
-    if g.RespawnTimer == 1 {
+
+// respawn ammo pickups every 3 waves
+if g.RespawnTimer == 1 {
         for i := range g.AmmoPickups {
             g.AmmoPickups[i].Active = true
         }

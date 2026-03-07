@@ -2,7 +2,8 @@ package engine
 
 import (
      "fmt"	
-	"math"
+     "image/color"
+	 "math"
     "github.com/hajimehoshi/ebiten/v2"
     "github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
@@ -134,7 +135,19 @@ func (g *Game) DrawHUD() {
 
 
 func (g *Game) Draw(screen *ebiten.Image) {
-   
+
+    if g.GameState == 0 {
+    screen.Fill(color.Black)
+    ebitenutil.DebugPrint(screen, "GHOST HUNTER\n\nPress SPACE to start\n\nArrow keys to move\nSPACE to shoot")
+    return
+}
+
+if g.GameState == 2 {
+    screen.Fill(color.Black)
+    ebitenutil.DebugPrint(screen, fmt.Sprintf("GAME OVER\nScore: %d\nWave: %d\n\nPress R to restart", g.Score, g.Wave))
+    return
+
+
      if g.GameState == 0 {
     ebitenutil.DebugPrint(screen, "GHOST HUNTER\n\nPress SPACE to start\n\nArrow keys to move\nSPACE to shoot")
     return
@@ -146,7 +159,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
     return
   }
 
-
+}
 
 
 	// clear to black
@@ -235,15 +248,19 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 
   //ceiling loop
+var rowDist float64
 for y := 0; y < yStart; y++ {
-    // ceiling texture
+    denom := ScreenHeight - 2*y
+    if denom == 0 {
+        continue
+    }
+    rowDist = float64(ScreenHeight) / float64(denom)
     var ceilTex []byte
     if g.CurrentMap == 0 {
         ceilTex = FloorTexture2[:]
     } else {
         ceilTex = FloorTexture[:]
     }
-    rowDist := float64(ScreenHeight) / float64(ScreenHeight - 2*y)
     floorX := g.PlayerX + rowDist*math.Cos(rayAngle)
     floorY := g.PlayerY + rowDist*math.Sin(rayAngle)
     texX := int(floorX*float64(TexSize)) & (TexSize - 1)
@@ -251,6 +268,9 @@ for y := 0; y < yStart; y++ {
     texIdx := (texY*TexSize + texX) * 4
     brightness := 0.5
     idx := (y*ScreenWidth + x) * 4
+    if idx+3 >= len(g.Pixels) || texIdx+3 >= len(ceilTex) {
+        continue
+    }
     g.Pixels[idx+0] = uint8(float64(ceilTex[texIdx+0]) * brightness)
     g.Pixels[idx+1] = uint8(float64(ceilTex[texIdx+1]) * brightness)
     g.Pixels[idx+2] = uint8(float64(ceilTex[texIdx+2]) * brightness)
@@ -258,16 +278,21 @@ for y := 0; y < yStart; y++ {
 }
 
 
-// floor loop 
+
+//floor loop
+// var rowDist float64
 for y := yEnd; y < ScreenHeight; y++ {
-    // floor texture
+    denom := 2*y - ScreenHeight
+    if denom == 0 {
+        continue
+    }
+    rowDist = float64(ScreenHeight) / float64(denom)
     var floorTex []byte
     if g.CurrentMap == 0 {
         floorTex = FloorTexture[:]
     } else {
         floorTex = FloorTexture2[:]
     }
-    rowDist := float64(ScreenHeight) / float64(2*y - ScreenHeight)
     floorX := g.PlayerX + rowDist*math.Cos(rayAngle)
     floorY := g.PlayerY + rowDist*math.Sin(rayAngle)
     texX := int(floorX*float64(TexSize)) & (TexSize - 1)
@@ -275,11 +300,13 @@ for y := yEnd; y < ScreenHeight; y++ {
     texIdx := (texY*TexSize + texX) * 4
     brightness := 0.6
     idx := (y*ScreenWidth + x) * 4
+    if idx+3 >= len(g.Pixels) || texIdx+3 >= len(floorTex) {
+        continue
+    }
     g.Pixels[idx+0] = uint8(float64(floorTex[texIdx+0]) * brightness)
     g.Pixels[idx+1] = uint8(float64(floorTex[texIdx+1]) * brightness)
     g.Pixels[idx+2] = uint8(float64(floorTex[texIdx+2]) * brightness)
     g.Pixels[idx+3] = 255
-}
 
 }
 
@@ -348,23 +375,7 @@ for _, sprite := range g.Entities {
 
 
 
-
-//enitiy speed 
-for i := range g.Entities {
-    if g.Entities[i].Dead {
-        if g.Entities[i].FadeTimer > 0 {
-            g.Entities[i].FadeTimer--
-        }
-        continue
-    }
-    dx := g.PlayerX - g.Entities[i].X
-    dy := g.PlayerY - g.Entities[i].Y
-    dist := math.Sqrt(dx*dx + dy*dy)
-    if dist > 0.5 {
-        g.Entities[i].X += (dx / dist) * g.Entities[i].Speed
-        g.Entities[i].Y += (dy / dist) * g.Entities[i].Speed
-    }
-}
+// }
 
  // render ammo pickups
 for _, pickup := range g.AmmoPickups {
@@ -486,7 +497,7 @@ if g.DamageFlash > 0 {
 
     if g.LevelNameTimer > 0 {
       ebitenutil.DebugPrint(screen, fmt.Sprintf("\n\n\n\n\n\n\n          %s", MapNames[g.CurrentMap]))
-      g.LevelNameTimer--
+      // g.LevelNameTimer--
 }
 
 
@@ -495,6 +506,7 @@ if g.DamageFlash > 0 {
 	}else{
 		ebitenutil.DebugPrint(screen, fmt.Sprintf("Wave: %d  Score: %d  Best: %d  Health: %d  Ammo: %d", g.Wave, g.Score, g.HighScore, g.Health, g.Ammo))
    }	 
+}
 }
 
 
