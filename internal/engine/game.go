@@ -25,11 +25,12 @@ type Game struct {
 	CurrentMap     int
 	Entities       []Entity
 	LevelNameTimer int
-    WaveTransition int 
+	WaveTransition int
 	Paused         bool
 }
 
 func NewGame() *Game {
+	highScore := LoadHighScore()
 	return &Game{
 		Pixels:     make([]byte, ScreenWidth*ScreenHeight*4),
 		CurrentMap: 0,
@@ -40,6 +41,7 @@ func NewGame() *Game {
 		Ammo:       10,
 		GameState:  0,
 		Health:     100,
+		HighScore:  highScore,
 		AmmoPickups: []AmmoPickup{
 			{X: 5.0, Y: 5.0, Active: true},
 			{X: 11.0, Y: 11.0, Active: true},
@@ -67,21 +69,20 @@ func (g *Game) Update() error {
 			g.LevelNameTimer--
 		}
 		return nil
-	 }
-    
-	 //pause menu 
-	 if inpututil.IsKeyJustPressed(ebiten.KeyEscape){
-		 g.Paused = !g.Paused 
-	 }
-	 if g.Paused {
-		 return nil
-	 }
+	}
 
+	//pause menu
+	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
+		g.Paused = !g.Paused
+	}
+	if g.Paused {
+		return nil
+	}
 
-	//wave decay 
-if g.WaveTransition > 0 {
-    g.WaveTransition--
-}
+	//wave decay
+	if g.WaveTransition > 0 {
+		g.WaveTransition--
+	}
 
 	// game over screen
 	if g.GameState == 2 {
@@ -269,7 +270,7 @@ if g.WaveTransition > 0 {
 		g.RespawnTimer++
 		if g.RespawnTimer > 180 {
 			g.Wave++
-            g.WaveTransition = 60
+			g.WaveTransition = 60
 			g.Ammo += 3
 			count := 3 + g.Wave
 			var positions [][2]float64
