@@ -27,6 +27,7 @@ type Game struct {
 	LevelNameTimer int
 	WaveTransition int
 	Paused         bool
+	ScreenShake    int 
 }
 
 func NewGame() *Game {
@@ -232,6 +233,7 @@ func (g *Game) Update() error {
 	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
 		if g.Ammo > 0 {
 			g.GunKick = 8
+	        g.ScreenShake = 8
 			PlaySound("assets/shoot.wav")
 			g.Ammo--
 			for i := len(g.Entities) - 1; i >= 0; i-- {

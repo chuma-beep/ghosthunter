@@ -171,12 +171,21 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		g.Pixels[i] = 0
 	}
 
+    // shake offset
+	shakeX := 0
+shakeY := 0
+if g.ScreenShake > 0 {
+    shakeX = (g.ScreenShake % 3) - 1
+    shakeY = (g.ScreenShake % 2) - 1
+    g.ScreenShake--
+}
+
 	zBuffer := make([]float64, ScreenWidth)
 	fov := math.Pi / 3
 
 	// --- Ray loop ---
-	for x := 0; x < ScreenWidth; x++ {
-		rayAngle := g.Angle - fov/2 + fov*float64(x)/float64(ScreenWidth)
+for x := 0; x < ScreenWidth; x++ {
+    rayAngle := g.Angle + float64(shakeX)*0.003 - fov/2 + fov*float64(x)/float64(ScreenWidth)
 		var distance float64
 		for distance = 0; distance < 32; distance += 0.01 {
 			rayX := g.PlayerX + math.Cos(rayAngle)*distance
@@ -220,7 +229,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				texY = TexSize - 1
 			}
 			texIdx := (texY*TexSize + texX) * 4
-			idx := (y*ScreenWidth + x) * 4
+			// idx := (y*ScreenWidth + x) * 4
+            
+             sy := y + shakeY
+            if sy < 0 || sy >= ScreenHeight {
+               continue
+            }
+            idx := (sy*ScreenWidth + x) * 4
+
 			var tex []byte
 			if g.CurrentMap == 0 {
 				tex = WallTexture[:]
