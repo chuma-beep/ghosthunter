@@ -379,37 +379,90 @@ func (g *Game) Draw(screen *ebiten.Image) {
 					}
 				}
 			}
-		}
 
-		// render ammo pickups
-		for _, pickup := range g.AmmoPickups {
-			if !pickup.Active {
-				continue
-			}
-			dx := pickup.X - g.PlayerX
-			dy := pickup.Y - g.PlayerY
-			spriteDist := math.Sqrt(dx*dx + dy*dy)
-			spriteAngle := math.Atan2(dy, dx) - g.Angle
-
-			for spriteAngle > math.Pi {
-				spriteAngle -= 2 * math.Pi
-			}
-			for spriteAngle < -math.Pi {
-				spriteAngle += 2 * math.Pi
-			}
-
-			if math.Abs(spriteAngle) < fov/2 {
-				spriteScreenX := int((0.5 + spriteAngle/fov) * float64(ScreenWidth))
-				spriteHeight := int(float64(ScreenHeight)/spriteDist) / 2
-				if spriteHeight == 0 {
+			// render ammo pickups
+			for _, pickup := range g.AmmoPickups {
+				if !pickup.Active {
 					continue
 				}
-				spriteWidth := spriteHeight
+				dx := pickup.X - g.PlayerX
+				dy := pickup.Y - g.PlayerY
+				spriteDist := math.Sqrt(dx*dx + dy*dy)
+				spriteAngle := math.Atan2(dy, dx) - g.Angle
 
-				yStart := (ScreenHeight - spriteHeight) / 2
-				yEnd := (ScreenHeight + spriteHeight) / 2
-				xStart := spriteScreenX - spriteWidth/2
-				xEnd := spriteScreenX + spriteWidth/2
+				for spriteAngle > math.Pi {
+					spriteAngle -= 2 * math.Pi
+				}
+				for spriteAngle < -math.Pi {
+					spriteAngle += 2 * math.Pi
+				}
+
+				if math.Abs(spriteAngle) < fov/2 {
+					spriteScreenX := int((0.5 + spriteAngle/fov) * float64(ScreenWidth))
+					spriteHeight := int(float64(ScreenHeight)/spriteDist) / 2
+					if spriteHeight == 0 {
+						continue
+					}
+					spriteWidth := spriteHeight
+
+					yStart := (ScreenHeight - spriteHeight) / 2
+					yEnd := (ScreenHeight + spriteHeight) / 2
+					xStart := spriteScreenX - spriteWidth/2
+					xEnd := spriteScreenX + spriteWidth/2
+
+					if yStart < 0 {
+						yStart = 0
+					}
+					if yEnd > ScreenHeight {
+						yEnd = ScreenHeight
+					}
+					if xStart < 0 {
+						xStart = 0
+					}
+					if xEnd > ScreenWidth {
+						xEnd = ScreenWidth
+					}
+
+					for sx := xStart; sx < xEnd; sx++ {
+						if spriteDist < zBuffer[sx] {
+							for sy := yStart; sy < yEnd; sy++ {
+								idx := (sy*ScreenWidth + sx) * 4
+								g.Pixels[idx+0] = 255
+								g.Pixels[idx+1] = 255
+								g.Pixels[idx+2] = 0
+								g.Pixels[idx+3] = 255
+							}
+						}
+					}
+				}
+			}
+
+			// render portal
+			portalX, portalY := 13.0, 1.0
+			dx = portalX - g.PlayerX
+			dy = portalY - g.PlayerY
+			portalDist := math.Sqrt(dx*dx + dy*dy)
+			portalAngle := math.Atan2(dy, dx) - g.Angle
+
+			for portalAngle > math.Pi {
+				portalAngle -= 2 * math.Pi
+			}
+			for portalAngle < -math.Pi {
+				portalAngle += 2 * math.Pi
+			}
+
+			if math.Abs(portalAngle) < fov/2 {
+				spriteScreenX := int((0.5 + portalAngle/fov) * float64(ScreenWidth))
+				portalHeight := int(float64(ScreenHeight) / portalDist)
+				if portalHeight == 0 || yEnd == yStart {
+					continue
+				}
+				portalWidth := portalHeight / 2
+
+				yStart := (ScreenHeight - portalHeight) / 2
+				yEnd := (ScreenHeight + portalHeight) / 2
+				xStart := spriteScreenX - portalWidth/2
+				xEnd := spriteScreenX + portalWidth/2
 
 				if yStart < 0 {
 					yStart = 0
@@ -425,110 +478,56 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				}
 
 				for sx := xStart; sx < xEnd; sx++ {
-					if spriteDist < zBuffer[sx] {
+					if portalDist < zBuffer[sx] {
 						for sy := yStart; sy < yEnd; sy++ {
+							// glowing purple portal effect
+							t := float64(sy-yStart) / float64(yEnd-yStart)
 							idx := (sy*ScreenWidth + sx) * 4
-							g.Pixels[idx+0] = 255
-							g.Pixels[idx+1] = 255
-							g.Pixels[idx+2] = 0
+							g.Pixels[idx+0] = uint8(150 + 50*t)
+							g.Pixels[idx+1] = 0
+							g.Pixels[idx+2] = uint8(200 + 55*t)
 							g.Pixels[idx+3] = 255
 						}
 					}
 				}
 			}
-		}
 
-		// render portal
-		portalX, portalY := 13.0, 1.0
-		dx := portalX - g.PlayerX
-		dy := portalY - g.PlayerY
-		portalDist := math.Sqrt(dx*dx + dy*dy)
-		portalAngle := math.Atan2(dy, dx) - g.Angle
+			// draw crosshair
+			cx := ScreenWidth / 2
+			cy := ScreenHeight / 2
+			for i := -5; i <= 5; i++ {
+				idx := (cy*ScreenWidth + (cx + i)) * 4
+				g.Pixels[idx+0] = 255
+				g.Pixels[idx+1] = 255
+				g.Pixels[idx+2] = 255
+				g.Pixels[idx+3] = 255
 
-		for portalAngle > math.Pi {
-			portalAngle -= 2 * math.Pi
-		}
-		for portalAngle < -math.Pi {
-			portalAngle += 2 * math.Pi
-		}
-
-		if math.Abs(portalAngle) < fov/2 {
-			spriteScreenX := int((0.5 + portalAngle/fov) * float64(ScreenWidth))
-			portalHeight := int(float64(ScreenHeight) / portalDist)
-			if portalHeight == 0 || yEnd == yStart {
-				continue
-			}
-			portalWidth := portalHeight / 2
-
-			yStart := (ScreenHeight - portalHeight) / 2
-			yEnd := (ScreenHeight + portalHeight) / 2
-			xStart := spriteScreenX - portalWidth/2
-			xEnd := spriteScreenX + portalWidth/2
-
-			if yStart < 0 {
-				yStart = 0
-			}
-			if yEnd > ScreenHeight {
-				yEnd = ScreenHeight
-			}
-			if xStart < 0 {
-				xStart = 0
-			}
-			if xEnd > ScreenWidth {
-				xEnd = ScreenWidth
+				idx = ((cy+i)*ScreenWidth + cx) * 4
+				g.Pixels[idx+0] = 255
+				g.Pixels[idx+1] = 255
+				g.Pixels[idx+2] = 255
+				g.Pixels[idx+3] = 255
 			}
 
-			for sx := xStart; sx < xEnd; sx++ {
-				if portalDist < zBuffer[sx] {
-					for sy := yStart; sy < yEnd; sy++ {
-						// glowing purple portal effect
-						t := float64(sy-yStart) / float64(yEnd-yStart)
-						idx := (sy*ScreenWidth + sx) * 4
-						g.Pixels[idx+0] = uint8(150 + 50*t)
-						g.Pixels[idx+1] = 0
-						g.Pixels[idx+2] = uint8(200 + 55*t)
-						g.Pixels[idx+3] = 255
-					}
+			// screen flash when taking damage
+			if g.DamageFlash > 0 {
+				for i := 0; i < len(g.Pixels); i += 4 {
+					g.Pixels[i+0] = uint8(min(int(g.Pixels[i+0])+100, 255))
+					g.Pixels[i+3] = 255
 				}
+				g.DamageFlash--
 			}
 		}
 
-		// draw crosshair
-		cx := ScreenWidth / 2
-		cy := ScreenHeight / 2
-		for i := -5; i <= 5; i++ {
-			idx := (cy*ScreenWidth + (cx + i)) * 4
-			g.Pixels[idx+0] = 255
-			g.Pixels[idx+1] = 255
-			g.Pixels[idx+2] = 255
-			g.Pixels[idx+3] = 255
-
-			idx = ((cy+i)*ScreenWidth + cx) * 4
-			g.Pixels[idx+0] = 255
-			g.Pixels[idx+1] = 255
-			g.Pixels[idx+2] = 255
-			g.Pixels[idx+3] = 255
-		}
-
-		// screen flash when taking damage
-		if g.DamageFlash > 0 {
-			for i := 0; i < len(g.Pixels); i += 4 {
-				g.Pixels[i+0] = uint8(min(int(g.Pixels[i+0])+100, 255))
-				g.Pixels[i+3] = 255
-			}
-			g.DamageFlash--
-		}
 		g.DrawGun()
 		g.DrawHUD()
 		g.DrawMinimap()
 		screen.ReplacePixels(g.Pixels)
 
-             //pause screen 
-        if g.Paused {
-          ebitenutil.DebugPrint(screen, "\n\n\n\n\n\n\n          PAUSED\n\n          Press ESC to resume\n          Press R to restart")
-          return
-        }
-
+		if g.Paused {
+			ebitenutil.DebugPrint(screen, "\n\n\n\n\n\n\n          PAUSED\n\n          Press ESC to resume\n          Press R to restart")
+			return
+		}
 
 		if g.WaveTransition > 0 {
 			ebitenutil.DebugPrint(screen, fmt.Sprintf("\n\n\n\n\n\n\n\n\n          Wave %d incoming!", g.Wave))
@@ -536,13 +535,15 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 		if g.LevelNameTimer > 0 {
 			ebitenutil.DebugPrint(screen, fmt.Sprintf("\n\n\n\n\n          %s", MapNames[g.CurrentMap]))
-			// g.LevelNameTimer--
 		}
 
-		if g.Health <= 0 {
-			ebitenutil.DebugPrint(screen, "GAME OVER")
-		} else {
-			ebitenutil.DebugPrint(screen, fmt.Sprintf("Wave: %d  Score: %d  Best: %d  Health: %d  Ammo: %d", g.Wave, g.Score, g.HighScore, g.Health, g.Ammo))
+		if g.GameState == 2 {
+			screen.Fill(color.Black)
+			ebitenutil.DebugPrint(screen, fmt.Sprintf(
+				"\n\n\n\n\n\n\n          GAME OVER\n\n          Score:      %d\n          Best Score: %d\n          Wave:       %d\n          Map:        %d/5\n\n          Press R to restart",
+				g.Score, g.HighScore, g.Wave, g.CurrentMap+1,
+			))
+			return
 		}
 	}
 }

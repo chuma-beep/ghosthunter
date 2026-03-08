@@ -46,9 +46,9 @@ func NewGame() *Game {
 			{X: 3.0, Y: 9.0, Active: true},
 		},
 		Entities: []Entity{
-			{X: 2.0, Y: 2.0, Type: EntityGhost, Health: 1, Speed: 0.05, Damage: 1},
-			{X: 28.0, Y: 2.0, Type: EntityGhost, Health: 1, Speed: 0.05, Damage: 1},
-			{X: 2.0, Y: 28.0, Type: EntityGhost, Health: 1, Speed: 0.05, Damage: 1},
+			{X: 2.0, Y: 2.0, Type: EntityGhost, Health: 1, Speed: 0.003, Damage: 1},
+			{X: 28.0, Y: 2.0, Type: EntityGhost, Health: 1, Speed: 0.003, Damage: 1},
+			{X: 2.0, Y: 28.0, Type: EntityGhost, Health: 1, Speed: 0.003, Damage: 1},
 		},
 	}
 }
@@ -97,9 +97,9 @@ if g.WaveTransition > 0 {
 			g.Angle = 0.0
 			g.GameState = 1
 			g.Entities = []Entity{
-				{X: 14.0, Y: 14.0, Type: EntityGhost, Health: 1, Speed: 0.005, Damage: 1},
-				{X: 14.0, Y: 2.0, Type: EntityGhost, Health: 1, Speed: 0.005, Damage: 1},
-				{X: 2.0, Y: 14.0, Type: EntityGhost, Health: 1, Speed: 0.005, Damage: 1},
+				{X: 14.0, Y: 14.0, Type: EntityGhost, Health: 1, Speed: 0.003, Damage: 1},
+				{X: 14.0, Y: 2.0, Type: EntityGhost, Health: 1, Speed: 0.003, Damage: 1},
+				{X: 2.0, Y: 14.0, Type: EntityGhost, Health: 1, Speed: 0.003, Damage: 1},
 			}
 		}
 		return nil
@@ -118,15 +118,15 @@ if g.WaveTransition > 0 {
 		g.LevelNameTimer = 60
 		if g.CurrentMap == 0 || g.CurrentMap == 1 {
 			g.Entities = []Entity{
-				{X: 6.0, Y: 6.0, Type: EntityGhost, Health: 1, Speed: 0.05, Damage: 1},
-				{X: 10.0, Y: 4.0, Type: EntityGhost, Health: 1, Speed: 0.05, Damage: 1},
-				{X: 3.0, Y: 12.0, Type: EntityGhost, Health: 1, Speed: 0.05, Damage: 1},
+				{X: 6.0, Y: 6.0, Type: EntityGhost, Health: 1, Speed: 0.003, Damage: 1},
+				{X: 10.0, Y: 4.0, Type: EntityGhost, Health: 1, Speed: 0.003, Damage: 1},
+				{X: 3.0, Y: 12.0, Type: EntityGhost, Health: 1, Speed: 0.003, Damage: 1},
 			}
 		} else {
 			g.Entities = []Entity{
-				{X: 6.0, Y: 6.0, Type: EntityWizard, Health: 2, Speed: 0.05, Damage: 2},
-				{X: 10.0, Y: 4.0, Type: EntityWizard, Health: 2, Speed: 0.05, Damage: 2},
-				{X: 3.0, Y: 12.0, Type: EntityWizard, Health: 2, Speed: 0.05, Damage: 2},
+				{X: 6.0, Y: 6.0, Type: EntityWizard, Health: 2, Speed: 0.003, Damage: 2},
+				{X: 10.0, Y: 4.0, Type: EntityWizard, Health: 2, Speed: 0.003, Damage: 2},
+				{X: 3.0, Y: 12.0, Type: EntityWizard, Health: 2, Speed: 0.003, Damage: 2},
 			}
 		}
 	}
