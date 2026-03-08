@@ -26,6 +26,7 @@ type Game struct {
 	Entities       []Entity
 	LevelNameTimer int
     WaveTransition int 
+	Paused         bool
 }
 
 func NewGame() *Game {
@@ -66,9 +67,18 @@ func (g *Game) Update() error {
 			g.LevelNameTimer--
 		}
 		return nil
-	}
+	 }
+    
+	 //pause menu 
+	 if inpututil.IsKeyJustPressed(ebiten.KeyEscape){
+		 g.Paused = !g.Paused 
+	 }
+	 if g.Paused {
+		 return nil
+	 }
 
-      //wave decay 
+
+	//wave decay 
 if g.WaveTransition > 0 {
     g.WaveTransition--
 }

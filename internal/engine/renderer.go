@@ -523,6 +523,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		g.DrawMinimap()
 		screen.ReplacePixels(g.Pixels)
 
+             //pause screen 
+        if g.Paused {
+          ebitenutil.DebugPrint(screen, "\n\n\n\n\n\n\n          PAUSED\n\n          Press ESC to resume\n          Press R to restart")
+          return
+        }
+
+
 		if g.WaveTransition > 0 {
 			ebitenutil.DebugPrint(screen, fmt.Sprintf("\n\n\n\n\n\n\n\n\n          Wave %d incoming!", g.Wave))
 		}
