@@ -7,7 +7,9 @@ type EntityType int
 const (
 	EntityGhost EntityType = iota 
 	EntityWizard
-	EntityDemon 
+	EntityDemon
+    EntityWraith
+    EntityReaper
 )
 
 
@@ -31,6 +33,8 @@ type Entity struct{
 	Y  float64
 	VX float64
 	VY float64
+	Frame int
+	FrameTimer int 
 	FadeTimer int 
 	Dead bool 
 	Type EntityType 

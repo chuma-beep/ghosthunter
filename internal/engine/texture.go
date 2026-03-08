@@ -4,6 +4,7 @@ import (
     "image"
     _ "image/png"
     "os"
+	"fmt"
 )
 
 const TexSize = 64
@@ -100,6 +101,21 @@ func LoadFloor(path string, tex *[TexSize * TexSize * 4]byte) {
 }
 
 
+//loadImag func 
+func loadImage(path string) (image.Image, string, error) {
+    f, err := os.Open(path)
+    if err != nil {
+        return nil, "", err
+    }
+    defer f.Close()
+    img, format, err := image.Decode(f)
+    return img, format, err
+}
+
+
+
+
+
 
 
 const spriteTexSize = 64 
@@ -191,3 +207,53 @@ func LoadGun(path string) {
         }
     }
 }
+
+//enemies 
+var demonTexture []byte
+var demonFrames int
+var wraithTexture []byte
+var wraithFrames int
+var reaperTexture []byte
+var reaperFrames int
+
+func LoadEnemySprites() {
+    demonTexture, demonFrames = loadSpriteSheet("assets/demon_final.png", 64)
+    wraithTexture, wraithFrames = loadSpriteSheet("assets/wraith_final.png", 64)
+    reaperTexture, reaperFrames = loadSpriteSheet("assets/reaper_final.png", 64)
+    fmt.Println("demon frames:", demonFrames, "wraith frames:", wraithFrames, "reaper frames:", reaperFrames)
+}
+
+func loadSpriteSheet(path string, frameSize int) ([]byte, int) {
+    img, _, err := loadImage(path)
+    if err != nil {
+        return nil, 0
+    }
+    bounds := img.Bounds()
+    frames := bounds.Max.X / frameSize
+    pixels := make([]byte, bounds.Max.X*frameSize*4)
+    for y := 0; y < frameSize; y++ {
+        for x := 0; x < bounds.Max.X; x++ {
+            r, g, b, a := img.At(x, y).RGBA()
+            idx := (y*bounds.Max.X + x) * 4
+            pixels[idx+0] = uint8(r >> 8)
+            pixels[idx+1] = uint8(g >> 8)
+            pixels[idx+2] = uint8(b >> 8)
+            pixels[idx+3] = uint8(a >> 8)
+        }
+    }
+    return pixels, frames
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

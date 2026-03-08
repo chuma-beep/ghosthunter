@@ -325,14 +325,30 @@ for x := 0; x < ScreenWidth; x++ {
 			continue
 		}
 		var tex []byte
-		var texSize int
-		if sprite.Type == EntityWizard {
-			tex = wizardTexture[:]
-			texSize = wizardTexSize
-		} else {
-			tex = spriteTexture[:]
-			texSize = spriteTexSize
-		}
+var texSize int
+var frameCount int 
+switch sprite.Type {
+case EntityWizard:
+    tex = wizardTexture[:]
+    texSize = wizardTexSize
+	frameCount = 1
+case EntityDemon:
+    tex = demonTexture
+    texSize = 64
+	frameCount = demonFrames
+case EntityWraith:
+    tex = wraithTexture
+    texSize = 64
+	frameCount = wraithFrames
+case EntityReaper:
+    tex = reaperTexture
+    texSize = 64
+	frameCount = reaperFrames
+default:
+    tex = spriteTexture[:]
+    texSize = spriteTexSize
+	frameCount = 1
+}
 		spriteScreenX := int((0.5 + spriteAngle/fov) * float64(ScreenWidth))
 		spriteHeight := int(float64(ScreenHeight) / spriteDist)
 		if spriteHeight == 0 {
@@ -359,10 +375,10 @@ for x := 0; x < ScreenWidth; x++ {
 			if spriteDist >= zBuffer[sx] {
 				continue
 			}
-			tX := (sx - xStart) * texSize / spriteWidth
+tX := (sx-xStart)*texSize/spriteWidth + sprite.Frame*texSize
 			for sy := yStart; sy < yEnd; sy++ {
 				tY := (sy - yStart) * texSize / spriteHeight
-				texIdx := (tY*texSize + tX) * 4
+				texIdx := (tY*texSize*frameCount + tX) * 4
 				if texIdx+3 >= len(tex) {
 					continue
 				}

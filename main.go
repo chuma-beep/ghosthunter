@@ -13,8 +13,9 @@ func safeInitAudio() {
 }
 
 func main() {
-    engine.LoadTexture("assets/wall.png")
+	engine.LoadTexture("assets/wall.png")
     engine.LoadTexture2("assets/wall2.png")
+	engine.LoadEnemySprites()
 	engine.LoadSpriteTexture("assets/sprite_real.png")
 	engine.LoadWizard("assets/wizard.png")
     engine.LoadGun("assets/gun.png")
