@@ -134,14 +134,14 @@ func (g *Game) Update() error {
 
 	// player movement
 	if ebiten.IsKeyPressed(ebiten.KeyArrowLeft) {
-		g.Angle -= 0.03
+		g.Angle -= 0.05
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyArrowRight) {
-		g.Angle += 0.03
+		g.Angle += 0.05
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyArrowUp) {
-		newX := g.PlayerX + math.Cos(g.Angle)*0.05
-		newY := g.PlayerY + math.Sin(g.Angle)*0.05
+		newX := g.PlayerX + math.Cos(g.Angle)*0.08
+		newY := g.PlayerY + math.Sin(g.Angle)*0.08
 		if int(newY) >= 0 && int(newY) < GetMapHeight(g.CurrentMap) &&
 			int(newX) >= 0 && int(newX) < GetMapWidth(g.CurrentMap) &&
 			GetMap(g.CurrentMap)[int(newY)][int(newX)] == 0 {
@@ -150,8 +150,8 @@ func (g *Game) Update() error {
 		}
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyArrowDown) {
-		newX := g.PlayerX - math.Cos(g.Angle)*0.05
-		newY := g.PlayerY - math.Sin(g.Angle)*0.05
+		newX := g.PlayerX - math.Cos(g.Angle)*0.08
+		newY := g.PlayerY - math.Sin(g.Angle)*0.08
 		if int(newY) >= 0 && int(newY) < GetMapHeight(g.CurrentMap) &&
 			int(newX) >= 0 && int(newX) < GetMapWidth(g.CurrentMap) &&
 			GetMap(g.CurrentMap)[int(newY)][int(newX)] == 0 {
