@@ -25,6 +25,7 @@ type Game struct {
 	CurrentMap     int
 	Entities       []Entity
 	LevelNameTimer int
+    WaveTransition int 
 }
 
 func NewGame() *Game {
@@ -66,6 +67,11 @@ func (g *Game) Update() error {
 		}
 		return nil
 	}
+
+      //wave decay 
+if g.WaveTransition > 0 {
+    g.WaveTransition--
+}
 
 	// game over screen
 	if g.GameState == 2 {
@@ -253,6 +259,7 @@ func (g *Game) Update() error {
 		g.RespawnTimer++
 		if g.RespawnTimer > 180 {
 			g.Wave++
+            g.WaveTransition = 120
 			g.Ammo += 3
 			count := 3 + g.Wave
 			var positions [][2]float64
