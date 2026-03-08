@@ -105,7 +105,7 @@ if g.WaveTransition > 0 {
 		g.PlayerX = 2.0
 		g.PlayerY = 1.5
 		g.RespawnTimer = 0
-		g.LevelNameTimer = 180 //3 secs
+		g.LevelNameTimer = 60
 		if g.CurrentMap == 0 || g.CurrentMap == 1 {
 			g.Entities = []Entity{
 				{X: 6.0, Y: 6.0, Type: EntityGhost, Health: 1, Speed: 0.05, Damage: 1},
@@ -259,7 +259,7 @@ if g.WaveTransition > 0 {
 		g.RespawnTimer++
 		if g.RespawnTimer > 180 {
 			g.Wave++
-            g.WaveTransition = 120
+            g.WaveTransition = 60
 			g.Ammo += 3
 			count := 3 + g.Wave
 			var positions [][2]float64

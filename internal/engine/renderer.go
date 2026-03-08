@@ -524,11 +524,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		screen.ReplacePixels(g.Pixels)
 
 		if g.WaveTransition > 0 {
-			ebitenutil.DebugPrint(screen, fmt.Sprintf("\n\n\n\n\n\n\n          Wave %d incoming!", g.Wave))
+			ebitenutil.DebugPrint(screen, fmt.Sprintf("\n\n\n\n\n\n\n\n\n          Wave %d incoming!", g.Wave))
 		}
 
 		if g.LevelNameTimer > 0 {
-			ebitenutil.DebugPrint(screen, fmt.Sprintf("\n\n\n\n\n\n\n          %s", MapNames[g.CurrentMap]))
+			ebitenutil.DebugPrint(screen, fmt.Sprintf("\n\n\n\n\n          %s", MapNames[g.CurrentMap]))
 			// g.LevelNameTimer--
 		}
 
