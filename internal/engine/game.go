@@ -251,8 +251,26 @@ for i := range g.Entities {
     switch g.Entities[i].Type {
     case EntityDemon:
         angle += math.Sin(float64(g.RespawnTimer+i)*0.3) * 0.5
-    case EntityWraith:
-        angle += 0.4
+       
+               case EntityWraith:
+    // circle player while slowly closing in
+    perpAngle := angle + math.Pi/2
+    // move 70% toward player, 30% perpendicular
+    combinedX := math.Cos(angle)*0.7 + math.Cos(perpAngle)*0.3
+    combinedY := math.Sin(angle)*0.7 + math.Sin(perpAngle)*0.3
+    newEX := g.Entities[i].X + combinedX*g.Entities[i].Speed
+    newEY := g.Entities[i].Y + combinedY*g.Entities[i].Speed
+    if int(newEY) >= 0 && int(newEY) < GetMapHeight(g.CurrentMap) &&
+        int(newEX) >= 0 && int(newEX) < GetMapWidth(g.CurrentMap) &&
+        GetMap(g.CurrentMap)[int(newEY)][int(newEX)] == 0 {
+        g.Entities[i].X = newEX
+        g.Entities[i].Y = newEY
+    }
+    continue 
+		       
+
+
+
     case EntityReaper:
         if dist > 8.0 {
             g.Entities[i].X = g.PlayerX - math.Cos(angle)*3.0
@@ -276,6 +294,60 @@ for i := range g.Entities {
             g.Entities[i].Frame = (g.Entities[i].Frame + 1) % fc
         }
     }
+
+// movement with wall avoidance
+if g.Entities[i].Type == EntityGhost {
+    // ghosts walk through walls
+    g.Entities[i].X += math.Cos(angle) * g.Entities[i].Speed
+    g.Entities[i].Y += math.Sin(angle) * g.Entities[i].Speed
+} else {
+    newEX := g.Entities[i].X + math.Cos(angle)*g.Entities[i].Speed
+    newEY := g.Entities[i].Y + math.Sin(angle)*g.Entities[i].Speed
+    movedX := false
+    movedY := false
+    // try moving on X axis
+    if int(newEY) >= 0 && int(newEY) < GetMapHeight(g.CurrentMap) &&
+        int(newEX) >= 0 && int(newEX) < GetMapWidth(g.CurrentMap) &&
+        GetMap(g.CurrentMap)[int(newEY)][int(newEX)] == 0 {
+        g.Entities[i].X = newEX
+        g.Entities[i].Y = newEY
+        movedX = true
+        movedY = true
+    }
+    // if blocked try sliding along X only
+    if !movedX {
+        newEX2 := g.Entities[i].X + math.Cos(angle)*g.Entities[i].Speed
+        if int(g.Entities[i].Y) >= 0 && int(g.Entities[i].Y) < GetMapHeight(g.CurrentMap) &&
+            int(newEX2) >= 0 && int(newEX2) < GetMapWidth(g.CurrentMap) &&
+            GetMap(g.CurrentMap)[int(g.Entities[i].Y)][int(newEX2)] == 0 {
+            g.Entities[i].X = newEX2
+            movedY = true
+        }
+    }
+    // try sliding along Y only
+    if !movedY {
+        newEY2 := g.Entities[i].Y + math.Sin(angle)*g.Entities[i].Speed
+        if int(newEY2) >= 0 && int(newEY2) < GetMapHeight(g.CurrentMap) &&
+            int(g.Entities[i].X) >= 0 && int(g.Entities[i].X) < GetMapWidth(g.CurrentMap) &&
+            GetMap(g.CurrentMap)[int(newEY2)][int(g.Entities[i].X)] == 0 {
+            g.Entities[i].Y = newEY2
+        }
+    }
+    // if still blocked rotate randomly to find a way around
+    if !movedX && !movedY {
+        if i%2 == 0 {
+            angle += 0.3
+        } else {
+            angle -= 0.3
+        }
+        g.Entities[i].VX = math.Cos(angle)
+        g.Entities[i].VY = math.Sin(angle)
+    }
+}
+
+
+
+
 }
 
 
