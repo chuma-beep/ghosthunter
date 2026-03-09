@@ -1,5 +1,6 @@
 package engine
 
+
 import (
 	"fmt"
 	"image/color"
@@ -559,5 +560,22 @@ tX := (sx-xStart)*texSize/spriteWidth + sprite.Frame*texSize
 	if g.LevelNameTimer > 0 {
 		ebitenutil.DebugPrint(screen, fmt.Sprintf("\n\n\n\n\n          %s", MapNames[g.CurrentMap]))
 	}
-	ebitenutil.DebugPrint(screen, fmt.Sprintf("Wave: %d  Score: %d  Best: %d  Health: %d  Ammo: %d", g.Wave, g.Score, g.HighScore, g.Health, g.Ammo))
+
+
+
+   
+   // weapon name 
+	 var weaponName string 
+	 switch g.WeaponType {
+	 case 0:
+		   weaponName = "PISTOL"
+	 case 1: 
+	     weaponName = "SHOTGUN"
+	 case 2: 
+	     weaponName = "MACHINEGUN"
+	 }
+
+
+    ebitenutil.DebugPrint(screen, fmt.Sprintf("Wave: %d  Score: %d  Best: %d  Health: %d  Ammo: %d  [%s]",
+    g.Wave, g.Score, g.HighScore, g.Health, g.Ammo, weaponName))
 }
