@@ -29,6 +29,7 @@ type Game struct {
 	Paused         bool
 	ScreenShake    int 
 	WeaponType     int 
+	FireTimer      int 
 }
 
 func enemyForMap(mapIndex int) EntityType {
@@ -110,7 +111,9 @@ if inpututil.IsKeyJustPressed(ebiten.Key3) {
     g.WeaponType = 2
 }
 
-
+if g.FireTimer > 0 {
+    g.FireTimer--
+}
 
 
 	//wave decay
@@ -217,7 +220,7 @@ if portalDist < 0.8 {
 	// shooting
 canShoot := inpututil.IsKeyJustPressed(ebiten.KeySpace)
 if g.WeaponType == 2 {
-    canShoot = ebiten.IsKeyPressed(ebiten.KeySpace)
+    canShoot = ebiten.IsKeyPressed(ebiten.KeySpace) && g.FireTimer == 0
 }
 if canShoot {
     ammoCost := 1
@@ -229,6 +232,12 @@ if canShoot {
         g.ScreenShake = 8
         PlaySound("assets/shoot.wav")
         g.Ammo -= ammoCost
+        if g.WeaponType == 2 {
+        g.FireTimer = 6 
+       }
+     if g.WeaponType == 1 {
+      g.FireTimer = 30 
+		}
         switch g.WeaponType {
         case 0: // pistol - single ray
             g.shootRay(g.Angle, 1)
