@@ -1,8 +1,7 @@
 package engine
 
-const ScreenWidth = 320
-const ScreenHeight = 200
-
+var ScreenWidth = 640
+var ScreenHeight = 400
 
 // func GetMap(index int) *[16][16]int {
     // return &LoadedMaps[index]

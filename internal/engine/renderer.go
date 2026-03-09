@@ -67,27 +67,32 @@ func (g *Game) DrawMinimap() {
 }
 
 func (g *Game) DrawGun() {
-	gunWidth := 64
-	gunHeight := 64
-	startX := (ScreenWidth - gunWidth) / 2
-	startY := ScreenHeight - gunHeight + g.GunKick
-	for y := 0; y < gunHeight; y++ {
-		for x := 0; x < gunWidth; x++ {
-			texIdx := (y*gunWidth + x) * 4
-			a := gunTexture[texIdx+3]
-			if a > 128 {
-				px := startX + x
-				py := startY + y
-				if px >= 0 && px < ScreenWidth && py >= 0 && py < ScreenHeight {
-					idx := (py*ScreenWidth + px) * 4
-					g.Pixels[idx+0] = gunTexture[texIdx+0]
-					g.Pixels[idx+1] = gunTexture[texIdx+1]
-					g.Pixels[idx+2] = gunTexture[texIdx+2]
-					g.Pixels[idx+3] = 255
-				}
-			}
-		}
-	}
+    gunWidth := 64
+    gunHeight := 64
+    startX := (ScreenWidth - gunWidth) / 2
+    startY := ScreenHeight - gunHeight - 10 + g.GunKick
+    for y := 0; y < gunHeight; y++ {
+        for x := 0; x < gunWidth; x++ {
+            texIdx := (y*gunWidth + x) * 4
+            if texIdx+3 >= len(gunTexture) {
+                continue
+            }
+            a := gunTexture[texIdx+3]
+            if a > 128 {
+                px := startX + x
+                py := startY + y
+                if px >= 0 && px < ScreenWidth && py >= 0 && py < ScreenHeight {
+                    idx := (py*ScreenWidth + px) * 4
+                    if idx+3 < len(g.Pixels) {
+                        g.Pixels[idx+0] = gunTexture[texIdx+0]
+                        g.Pixels[idx+1] = gunTexture[texIdx+1]
+                        g.Pixels[idx+2] = gunTexture[texIdx+2]
+                        g.Pixels[idx+3] = 255
+                    }
+                }
+            }
+        }
+    }
 }
 
 func (g *Game) DrawHUD() {
@@ -150,6 +155,12 @@ func (g *Game) DrawHUD() {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
+
+   if len(g.Pixels) != ScreenWidth*ScreenHeight*4 {
+    g.Pixels = make([]byte, ScreenWidth*ScreenHeight*4)
+}
+
+
 	// --- Start screen ---
 	if g.GameState == 0 {
 		screen.Fill(color.Black)

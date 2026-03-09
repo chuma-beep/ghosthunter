@@ -27,10 +27,14 @@ func main() {
 	safeInitAudio()
     engine.LoadFloor("assets/floor.png", &engine.FloorTexture)
     engine.LoadFloor("assets/floor2.png", &engine.FloorTexture2)
-    ebiten.SetWindowSize(engine.ScreenWidth*2, engine.ScreenHeight*2)
-    ebiten.SetWindowTitle("doom-go")
+   w, h := ebiten.Monitor().Size()
+engine.ScreenWidth = w / 2
+engine.ScreenHeight = h / 2
+ebiten.SetWindowSize(engine.ScreenWidth, engine.ScreenHeight)
+ebiten.SetWindowTitle("Ghost Hunter")
+ 
     game := engine.NewGame()
-    if err := ebiten.RunGame(game); err != nil {
+if err := ebiten.RunGame(game); err != nil {
         log.Fatal(err)
     }
 }
