@@ -28,6 +28,7 @@ type Game struct {
 	WaveTransition int
 	Paused         bool
 	ScreenShake    int 
+	WeaponType     int 
 }
 
 func enemyForMap(mapIndex int) EntityType {
@@ -97,6 +98,20 @@ func (g *Game) Update() error {
 	if g.Paused {
 		return nil
 	}
+
+   //weapon switching 
+	  if inpututil.IsKeyJustPressed(ebiten.Key1) {
+    g.WeaponType = 0
+}
+if inpututil.IsKeyJustPressed(ebiten.Key2) {
+    g.WeaponType = 1
+}
+if inpututil.IsKeyJustPressed(ebiten.Key3) {
+    g.WeaponType = 2
+}
+
+
+
 
 	//wave decay
 	if g.WaveTransition > 0 {
@@ -200,38 +215,34 @@ if portalDist < 0.8 {
 	}
 
 	// shooting
-	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-		if g.Ammo > 0 {
-			g.GunKick = 8
-	        g.ScreenShake = 8
-			PlaySound("assets/shoot.wav")
-			g.Ammo--
-			for i := len(g.Entities) - 1; i >= 0; i-- {
-				if g.Entities[i].Dead {
-					continue
-				}
-				dx := g.Entities[i].X - g.PlayerX
-				dy := g.Entities[i].Y - g.PlayerY
-				dist := math.Sqrt(dx*dx + dy*dy)
-				spriteAngle := math.Atan2(dy, dx) - g.Angle
-				for spriteAngle > math.Pi {
-					spriteAngle -= 2 * math.Pi
-				}
-				for spriteAngle < -math.Pi {
-					spriteAngle += 2 * math.Pi
-				}
-				if math.Abs(spriteAngle) < 0.2 && dist < 10 {
-					g.Entities[i].Dead = true
-					g.Entities[i].FadeTimer = 20
-					g.Score++
-					PlaySound("assets/ghost.wav")
-				}
-			}
-		}
-	}
+canShoot := inpututil.IsKeyJustPressed(ebiten.KeySpace)
+if g.WeaponType == 2 {
+    canShoot = ebiten.IsKeyPressed(ebiten.KeySpace)
+}
+if canShoot {
+    ammoCost := 1
+    if g.WeaponType == 1 {
+        ammoCost = 3
+    }
+    if g.Ammo >= ammoCost {
+        g.GunKick = 8
+        g.ScreenShake = 8
+        PlaySound("assets/shoot.wav")
+        g.Ammo -= ammoCost
+        switch g.WeaponType {
+        case 0: // pistol - single ray
+            g.shootRay(g.Angle, 1)
+        case 1: // shotgun - 5 spread rays
+            for s := -2; s <= 2; s++ {
+                g.shootRay(g.Angle+float64(s)*0.05, 2)
+            }
+        case 2: // machinegun - single ray fast
+            g.shootRay(g.Angle, 1)
+        }
+    }
+}
 
-
-   // entity movement and animation
+// entity movement and animation
 for i := range g.Entities {
     if g.Entities[i].Dead {
         if g.Entities[i].FadeTimer > 0 {
@@ -345,9 +356,6 @@ if g.Entities[i].Type == EntityGhost {
     }
 }
 
-
-
-
 }
 
 
@@ -427,6 +435,35 @@ func enemyFrameCount(t EntityType) int {
         return reaperFrames
     default:
         return 1
+    }
+}
+
+
+//shoot ray 
+func (g *Game) shootRay(angle float64, damage int) {
+    for i := len(g.Entities) - 1; i >= 0; i-- {
+        if g.Entities[i].Dead {
+            continue
+        }
+        dx := g.Entities[i].X - g.PlayerX
+        dy := g.Entities[i].Y - g.PlayerY
+        dist := math.Sqrt(dx*dx + dy*dy)
+        spriteAngle := math.Atan2(dy, dx) - angle
+        for spriteAngle > math.Pi {
+            spriteAngle -= 2 * math.Pi
+        }
+        for spriteAngle < -math.Pi {
+            spriteAngle += 2 * math.Pi
+        }
+        if math.Abs(spriteAngle) < 0.2 && dist < 10 {
+            g.Entities[i].Health -= damage
+            if g.Entities[i].Health <= 0 {
+                g.Entities[i].Dead = true
+                g.Entities[i].FadeTimer = 20
+                g.Score++
+                PlaySound("assets/ghost.wav")
+            }
+        }
     }
 }
 
