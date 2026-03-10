@@ -74,6 +74,11 @@ func NewGame() *Game {
 			{X: 28.0, Y: 2.0, Type: EntityGhost, Health: 1, Speed: 0.003, Damage: 1},
 			{X: 2.0, Y: 28.0, Type: EntityGhost, Health: 1, Speed: 0.003, Damage: 1},
 		},
+    HealthPickups: []HealthPickup{
+      {X: 7.0, Y: 3.0, Active: true},
+      {X: 3.0, Y: 7.0, Active: true},
+      {X: 11.0, Y: 5.0, Active: true},
+    },
 	}
 }
 
@@ -217,6 +222,25 @@ if portalDist < 0.8 {
 			g.AmmoPickups[i].Active = false
 		}
 	}
+
+       // health pickups
+for i := range g.HealthPickups {
+    if !g.HealthPickups[i].Active {
+        continue
+    }
+    dx := g.HealthPickups[i].X - g.PlayerX
+    dy := g.HealthPickups[i].Y - g.PlayerY
+    dist := math.Sqrt(dx*dx + dy*dy)
+    if dist < 0.8 {
+        g.Health += 25
+        if g.Health > 100 {
+            g.Health = 100
+        }
+        g.HealthPickups[i].Active = false
+    }
+}
+
+
 
 	// shooting
 canShoot := inpututil.IsKeyJustPressed(ebiten.KeySpace)
@@ -413,11 +437,14 @@ if len(g.Entities) == 0 {
 }
 
 	// respawn ammo pickups every 3 waves
-	if g.RespawnTimer == 1 {
-		for i := range g.AmmoPickups {
-			g.AmmoPickups[i].Active = true
-		}
-	}
+if g.RespawnTimer == 1 {
+    for i := range g.AmmoPickups {
+        g.AmmoPickups[i].Active = true
+    }
+    for i := range g.HealthPickups {
+        g.HealthPickups[i].Active = true
+    }
+}
 
 	// check health and save scores
 	if g.Health <= 0 {

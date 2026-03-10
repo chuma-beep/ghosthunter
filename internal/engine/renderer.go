@@ -467,6 +467,70 @@ tX := (sx-xStart)*texSize/spriteWidth + sprite.Frame*texSize
 		}
 	}
 
+
+
+
+
+	// health pickups
+for _, pickup := range g.HealthPickups {
+    if !pickup.Active {
+        continue
+    }
+    dx := pickup.X - g.PlayerX
+    dy := pickup.Y - g.PlayerY
+    spriteDist := math.Sqrt(dx*dx + dy*dy)
+    spriteAngle := math.Atan2(dy, dx) - g.Angle
+    for spriteAngle > math.Pi {
+        spriteAngle -= 2 * math.Pi
+    }
+    for spriteAngle < -math.Pi {
+        spriteAngle += 2 * math.Pi
+    }
+    if math.Abs(spriteAngle) >= fov/2 {
+        continue
+    }
+    spriteScreenX := int((0.5 + spriteAngle/fov) * float64(ScreenWidth))
+    spriteHeight := int(float64(ScreenHeight)/spriteDist) / 2
+    if spriteHeight == 0 {
+        continue
+    }
+    spriteWidth := spriteHeight
+    yStart := (ScreenHeight - spriteHeight) / 2
+    yEnd := (ScreenHeight + spriteHeight) / 2
+    xStart := spriteScreenX - spriteWidth/2
+    xEnd := spriteScreenX + spriteWidth/2
+    if yStart < 0 { yStart = 0 }
+    if yEnd > ScreenHeight { yEnd = ScreenHeight }
+    if xStart < 0 { xStart = 0 }
+    if xEnd > ScreenWidth { xEnd = ScreenWidth }
+    for sx := xStart; sx < xEnd; sx++ {
+        if spriteDist >= zBuffer[sx] {
+            continue
+        }
+        for sy := yStart; sy < yEnd; sy++ {
+            idx := (sy*ScreenWidth + sx) * 4
+            if idx+3 >= len(g.Pixels) {
+                continue
+            }
+            // red cross pattern
+            cx := (xStart + xEnd) / 2
+            cy := (yStart + yEnd) / 2
+            onCross := (sx == cx) || (sy == cy)
+            if onCross {
+                g.Pixels[idx+0] = 255
+                g.Pixels[idx+1] = 0
+                g.Pixels[idx+2] = 0
+                g.Pixels[idx+3] = 255
+            } else {
+                g.Pixels[idx+0] = 200
+                g.Pixels[idx+1] = 200
+                g.Pixels[idx+2] = 200
+                g.Pixels[idx+3] = 255
+            }
+        }
+    }
+}
+
 	// --- Portal ---
 	var portalX, portalY float64
 	if g.CurrentMap <= 1 {
