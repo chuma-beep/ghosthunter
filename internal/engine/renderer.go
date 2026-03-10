@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"image/color"
 	"math"
-
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )

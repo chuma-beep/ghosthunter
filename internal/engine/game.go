@@ -29,7 +29,8 @@ type Game struct {
 	Paused         bool
 	ScreenShake    int 
 	WeaponType     int 
-	FireTimer      int 
+	FireTimer      int
+  HealthPickups []HealthPickup
 }
 
 func enemyForMap(mapIndex int) EntityType {

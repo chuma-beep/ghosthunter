@@ -44,4 +44,7 @@ type Entity struct{
 }
 
 
-
+type HealthPickup struct {
+    X, Y   float64
+    Active bool
+}
