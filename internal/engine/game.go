@@ -258,43 +258,6 @@ for i := range g.HealthPickups {
  g.TickWeapon() 
 // -------------
 
-// if g.WeaponType == 2 {
-//     canShoot = ebiten.IsKeyPressed(ebiten.KeySpace) && g.FireTimer == 0
-// }
-// if canShoot {
-//     ammoCost := 1
-//     if g.WeaponType == 1 {
-//         ammoCost = 3
-//     }
-//     if g.Ammo >= ammoCost {
-//         g.GunKick = 8
-//         g.ScreenShake = 8
-//        if g.WeaponType == 2 {
-//        g.GunFrame = 0
-//        g.GunFrameTimer = 1
-//       }
-//         PlaySound("assets/shoot.wav")
-//         g.Ammo -= ammoCost
-//         if g.WeaponType == 2 {
-//         g.FireTimer = 6 
-//        }
-//      if g.WeaponType == 1 {
-//       g.FireTimer = 30 
-// 		}
-//
-// if g.GunFrameTimer > 0 {
-//     g.GunFrameTimer++
-//     if g.GunFrameTimer > 3 {
-//         g.GunFrameTimer = 1
-//         g.GunFrame++
-//         if g.GunFrame >= 8 {
-//             g.GunFrame = 0
-//             g.GunFrameTimer = 0 
-//         }
-//     }
-// }
-//         switch g.WeaponType {
-
 // entity movement and animation
 for i := range g.Entities {
     if g.Entities[i].Dead {
