@@ -125,7 +125,7 @@ var weaponAnimations [3][]*ebiten.Image
 func LoadWeaponAnimations() {
     folders := []string{
         "assets/gun_pistol",
-        "assets/gun_shotgun",
+        "assets/gun_pistol",
         "assets/gun_machinegun",
     }
     for i, folder := range folders {

@@ -161,7 +161,8 @@ if g.FireTimer > 0 {
 	pdx := g.PlayerX - portalX
 	pdy := g.PlayerY - portalY
 	portalDist := math.Sqrt(pdx*pdx + pdy*pdy)
-if portalDist < 0.8 {
+  
+	if portalDist < 0.8 {
     g.CurrentMap = (g.CurrentMap + 1) % 5
     g.PlayerX = 2.0
     g.PlayerY = 1.5
@@ -275,18 +276,17 @@ if canShoot {
       g.FireTimer = 30 
 		}
 
-    if g.GunFrameTimer > 0 {
+if g.GunFrameTimer > 0 {
     g.GunFrameTimer++
     if g.GunFrameTimer > 3 {
         g.GunFrameTimer = 1
         g.GunFrame++
         if g.GunFrame >= 8 {
             g.GunFrame = 0
-            g.GunFrameTimer = 0
+            g.GunFrameTimer = 0 
         }
     }
 }
-
         switch g.WeaponType {
         case 0: // pistol - single ray
             g.shootRay(g.Angle, 1)
