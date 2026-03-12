@@ -65,34 +65,37 @@ func (g *Game) DrawMinimap() {
 	}
 }
 
-func (g *Game) DrawGun() {
-    gunWidth := 64
-    gunHeight := 64
-    startX := (ScreenWidth - gunWidth) / 2
-    startY := ScreenHeight - gunHeight - 10 + g.GunKick
-    for y := 0; y < gunHeight; y++ {
-        for x := 0; x < gunWidth; x++ {
-            texIdx := (y*gunWidth + x) * 4
-            if texIdx+3 >= len(gunTexture) {
-                continue
-            }
-            a := gunTexture[texIdx+3]
-            if a > 128 {
-                px := startX + x
-                py := startY + y
-                if px >= 0 && px < ScreenWidth && py >= 0 && py < ScreenHeight {
-                    idx := (py*ScreenWidth + px) * 4
-                    if idx+3 < len(g.Pixels) {
-                        g.Pixels[idx+0] = gunTexture[texIdx+0]
-                        g.Pixels[idx+1] = gunTexture[texIdx+1]
-                        g.Pixels[idx+2] = gunTexture[texIdx+2]
-                        g.Pixels[idx+3] = 255
-                    }
-                }
-            }
-        }
+
+//draw guns??
+func (g *Game) DrawGun(screen *ebiten.Image) {
+    weapon := g.WeaponType
+    if weapon >= len(weaponAnimations) {
+        weapon = 0
     }
+    frames := weaponAnimations[weapon]
+    if len(frames) == 0 {
+        return
+    }
+    frameIdx := 0
+    if g.GunFrameTimer > 0 && len(frames) > 1 {
+        frameIdx = 1 + g.GunFrame%(len(frames)-1)
+    }
+    img := frames[frameIdx]
+    bounds := img.Bounds()
+    dstW := ScreenWidth / 2
+    dstH := ScreenHeight / 2
+    startX := float64(ScreenWidth-dstW) / 2
+    startY := float64(ScreenHeight-dstH+g.GunKick)
+    scaleX := float64(dstW) / float64(bounds.Max.X)
+    scaleY := float64(dstH) / float64(bounds.Max.Y)
+    op := &ebiten.DrawImageOptions{}
+    op.GeoM.Scale(scaleX, scaleY)
+    op.GeoM.Translate(startX, startY)
+    screen.DrawImage(img, op)
 }
+
+
+
 
 func (g *Game) DrawHUD() {
 	barWidth := 100
@@ -335,6 +338,8 @@ for x := 0; x < ScreenWidth; x++ {
 		if math.Abs(spriteAngle) >= fov/2 {
 			continue
 		}
+
+
 		var tex []byte
 var texSize int
 var frameCount int 
@@ -466,9 +471,6 @@ tX := (sx-xStart)*texSize/spriteWidth + sprite.Frame*texSize
 			}
 		}
 	}
-
-
-
 
 
 	// health pickups
@@ -618,14 +620,15 @@ for _, pickup := range g.HealthPickups {
 		g.DamageFlash--
 	}
 
-	g.DrawGun()
-	g.DrawHUD()
-	g.DrawMinimap()
-	screen.ReplacePixels(g.Pixels)
 
+  g.DrawHUD()
+  g.DrawMinimap()
+  screen.ReplacePixels(g.Pixels)
+  g.DrawGun(screen)
+	
 	// --- Overlays ---
 	if g.Paused {
-		ebitenutil.DebugPrint(screen, "\n\n\n\n\n\n\n          PAUSED\n\n          Press ESC to resume\n          Press R to restart")
+		ebitenutil.DebugPrint(screen, "\n\n\n\n\n\n\n          PAUSED\n\n          Press ESC to resume\n          Press R to restart\n    Press Q to quit")
 		return
 	}
 	if g.WaveTransition > 0 {

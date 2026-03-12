@@ -14,24 +14,26 @@ func safeInitAudio() {
 
 func main() {
 	engine.LoadTexture("assets/wall.png")
-    engine.LoadTexture2("assets/wall2.png")
+  engine.LoadTexture2("assets/wall2.png")
 	engine.LoadEnemySprites()
 	engine.LoadSpriteTexture("assets/sprite_real.png")
 	engine.LoadWizard("assets/wizard.png")
-    engine.LoadGun("assets/gun.png")
-    engine.LoadMap("maps/map1.json", 0)
+  engine.LoadGun("assets/gun.png")
+  engine.LoadWeapons()
+  engine.LoadWeaponAnimations()
+	engine.LoadMap("maps/map1.json", 0)
 	engine.LoadMap("maps/map2.json", 1)
 	engine.LoadMap("maps/map3.json", 2)
 	engine.LoadMap("maps/map4.json", 3)
 	engine.LoadMap("maps/map5.json", 4)
 	safeInitAudio()
-    engine.LoadFloor("assets/floor.png", &engine.FloorTexture)
-    engine.LoadFloor("assets/floor2.png", &engine.FloorTexture2)
-   w, h := ebiten.Monitor().Size()
-engine.ScreenWidth = w / 2
-engine.ScreenHeight = h / 2
-ebiten.SetWindowSize(engine.ScreenWidth, engine.ScreenHeight)
-ebiten.SetWindowTitle("Ghost Hunter")
+  engine.LoadFloor("assets/floor.png", &engine.FloorTexture)
+  engine.LoadFloor("assets/floor2.png", &engine.FloorTexture2)
+  w, h := ebiten.Monitor().Size()
+  engine.ScreenWidth = w / 2
+  engine.ScreenHeight = h / 2
+  ebiten.SetWindowSize(engine.ScreenWidth, engine.ScreenHeight)
+  ebiten.SetWindowTitle("Ghost Hunter")
  
     game := engine.NewGame()
 if err := ebiten.RunGame(game); err != nil {

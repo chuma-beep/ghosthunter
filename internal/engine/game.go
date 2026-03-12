@@ -17,6 +17,8 @@ type Game struct {
 	Health         int
 	DamageFlash    int
 	Wave           int
+	GunFrame      int
+  GunFrameTimer int
 	GunKick        int
 	Ammo           int
 	AmmoPickups    []AmmoPickup
@@ -31,6 +33,7 @@ type Game struct {
 	WeaponType     int 
 	FireTimer      int
   HealthPickups []HealthPickup
+
 }
 
 func enemyForMap(mapIndex int) EntityType {
@@ -85,7 +88,7 @@ func NewGame() *Game {
 func (g *Game) Update() error {
 
 	fmt.Println("Update called, GameState:", g.GameState, "Entities:", len(g.Entities), "Wave:", g.Wave, "eespawnTimer:", g.RespawnTimer)
-	// fmt.Println("Update called, GameState:", g.GameState, "Entities:", len(g.Entities), "Wave:", g.Wave)
+// fmt.Println ("Update called, GameState:", g.GameState, "Entities:", len(g.Entities), "Wave:", g.Wave)
 	// start screen
 	if g.GameState == 0 {
 		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
@@ -106,6 +109,10 @@ func (g *Game) Update() error {
 		return nil
 	}
 
+	if inpututil.IsKeyJustPressed(ebiten.KeyQ) {
+    return ebiten.Termination
+}
+  	  
    //weapon switching 
 	  if inpututil.IsKeyJustPressed(ebiten.Key1) {
     g.WeaponType = 0
@@ -255,6 +262,10 @@ if canShoot {
     if g.Ammo >= ammoCost {
         g.GunKick = 8
         g.ScreenShake = 8
+       if g.WeaponType == 2 {
+       g.GunFrame = 0
+       g.GunFrameTimer = 1
+      }
         PlaySound("assets/shoot.wav")
         g.Ammo -= ammoCost
         if g.WeaponType == 2 {
@@ -263,6 +274,19 @@ if canShoot {
      if g.WeaponType == 1 {
       g.FireTimer = 30 
 		}
+
+    if g.GunFrameTimer > 0 {
+    g.GunFrameTimer++
+    if g.GunFrameTimer > 3 {
+        g.GunFrameTimer = 1
+        g.GunFrame++
+        if g.GunFrame >= 8 {
+            g.GunFrame = 0
+            g.GunFrameTimer = 0
+        }
+    }
+}
+
         switch g.WeaponType {
         case 0: // pistol - single ray
             g.shootRay(g.Angle, 1)

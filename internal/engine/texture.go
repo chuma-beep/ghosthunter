@@ -1,15 +1,21 @@
 package engine
 
 import (
+	  "fmt"
     "image"
     _ "image/png"
     "os"
-	"fmt"
+    "path/filepath"
+    "github.com/hajimehoshi/ebiten/v2"
+    "github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
+
+
 
 const TexSize = 64
 
 var WallTexture [TexSize * TexSize * 4]byte
+
 
 func LoadTexture(path string) {
     f, err := os.Open(path)
@@ -113,6 +119,32 @@ func loadImage(path string) (image.Image, string, error) {
 }
 
 
+//loaded wea
+var weaponAnimations [3][]*ebiten.Image
+
+func LoadWeaponAnimations() {
+    folders := []string{
+        "assets/gun_pistol",
+        "assets/gun_shotgun",
+        "assets/gun_machinegun",
+    }
+    for i, folder := range folders {
+        files, err := os.ReadDir(folder)
+        if err != nil {
+            continue
+        }
+        for _, file := range files {
+            if filepath.Ext(file.Name()) == ".png" {
+                img, _, err := ebitenutil.NewImageFromFile(filepath.Join(folder, file.Name()))
+                if err != nil {
+                    continue
+                }
+                weaponAnimations[i] = append(weaponAnimations[i], img)
+            }
+        }
+        fmt.Println("weapon", i, "loaded frames:", len(weaponAnimations[i]))
+    }
+}
 
 
 
@@ -248,11 +280,45 @@ func loadSpriteSheet(path string, frameSize int) ([]byte, int) {
 
 
 
+var pistolTexture []byte
+var pistolW, pistolH int
+var shotgunTexture []byte
+var shotgunW, shotgunH int
+var machinegunFrames int
+var machinegunTexture []byte
+var machinegunW, machinegunH int
+var machinegunSheet []byte
+var machinegunFrameW, machinegunFrameH int
 
 
+func LoadWeapons() {
+    machinegunSheet, machinegunFrames = loadSpriteSheet("assets/machinegun_sheet.png", 512)
+    machinegunFrameW = 512
+    machinegunFrameH = 512
+    machinegunTexture, machinegunW, machinegunH = loadWeaponImage("assets/machinegun_idle.png")
+}
 
-
-
+func loadWeaponImage(path string) ([]byte, int, int) {
+    img, _, err := loadImage(path)
+    if err != nil {
+        return nil, 0, 0
+    }
+    bounds := img.Bounds()
+    w := bounds.Max.X
+    h := bounds.Max.Y
+    pixels := make([]byte, w*h*4)
+    for y := 0; y < h; y++ {
+        for x := 0; x < w; x++ {
+            r, g, b, a := img.At(x, y).RGBA()
+            idx := (y*w + x) * 4
+            pixels[idx+0] = uint8(r >> 8)
+            pixels[idx+1] = uint8(g >> 8)
+            pixels[idx+2] = uint8(b >> 8)
+            pixels[idx+3] = uint8(a >> 8)
+        }
+    }
+    return pixels, w, h
+}
 
 
 
