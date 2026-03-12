@@ -33,7 +33,8 @@ type Game struct {
 	WeaponType     int 
 	FireTimer      int
   HealthPickups []HealthPickup
-
+  WeaponStateID  WeaponStateID 
+	WeaponStateTics int 
 }
 
 func enemyForMap(mapIndex int) EntityType {
@@ -82,7 +83,9 @@ func NewGame() *Game {
       {X: 3.0, Y: 7.0, Active: true},
       {X: 11.0, Y: 5.0, Active: true},
     },
-	}
+    WeaponStateID: S_PISTOL_READY,
+   WeaponStateTics: -1,
+   }
 }
 
 func (g *Game) Update() error {
@@ -114,18 +117,17 @@ func (g *Game) Update() error {
 }
   	  
    //weapon switching 
-	  if inpututil.IsKeyJustPressed(ebiten.Key1) {
+if inpututil.IsKeyJustPressed(ebiten.Key1) {
     g.WeaponType = 0
+    g.SetWeaponState(S_PISTOL_READY)
 }
 if inpututil.IsKeyJustPressed(ebiten.Key2) {
     g.WeaponType = 1
+    g.SetWeaponState(S_SHOTGUN_READY)
 }
 if inpututil.IsKeyJustPressed(ebiten.Key3) {
     g.WeaponType = 2
-}
-
-if g.FireTimer > 0 {
-    g.FireTimer--
+    g.SetWeaponState(S_MACHINEGUN_READY)
 }
 
 
@@ -251,54 +253,47 @@ for i := range g.HealthPickups {
 
 
 	// shooting
-canShoot := inpututil.IsKeyJustPressed(ebiten.KeySpace)
-if g.WeaponType == 2 {
-    canShoot = ebiten.IsKeyPressed(ebiten.KeySpace) && g.FireTimer == 0
-}
-if canShoot {
-    ammoCost := 1
-    if g.WeaponType == 1 {
-        ammoCost = 3
-    }
-    if g.Ammo >= ammoCost {
-        g.GunKick = 8
-        g.ScreenShake = 8
-       if g.WeaponType == 2 {
-       g.GunFrame = 0
-       g.GunFrameTimer = 1
-      }
-        PlaySound("assets/shoot.wav")
-        g.Ammo -= ammoCost
-        if g.WeaponType == 2 {
-        g.FireTimer = 6 
-       }
-     if g.WeaponType == 1 {
-      g.FireTimer = 30 
-		}
 
-if g.GunFrameTimer > 0 {
-    g.GunFrameTimer++
-    if g.GunFrameTimer > 3 {
-        g.GunFrameTimer = 1
-        g.GunFrame++
-        if g.GunFrame >= 8 {
-            g.GunFrame = 0
-            g.GunFrameTimer = 0 
-        }
-    }
-}
-        switch g.WeaponType {
-        case 0: // pistol - single ray
-            g.shootRay(g.Angle, 1)
-        case 1: // shotgun - 5 spread rays
-            for s := -2; s <= 2; s++ {
-                g.shootRay(g.Angle+float64(s)*0.05, 2)
-            }
-        case 2: // machinegun - single ray fast
-            g.shootRay(g.Angle, 1)
-        }
-    }
-}
+// -- new -- 
+ g.TickWeapon() 
+// -------------
+
+// if g.WeaponType == 2 {
+//     canShoot = ebiten.IsKeyPressed(ebiten.KeySpace) && g.FireTimer == 0
+// }
+// if canShoot {
+//     ammoCost := 1
+//     if g.WeaponType == 1 {
+//         ammoCost = 3
+//     }
+//     if g.Ammo >= ammoCost {
+//         g.GunKick = 8
+//         g.ScreenShake = 8
+//        if g.WeaponType == 2 {
+//        g.GunFrame = 0
+//        g.GunFrameTimer = 1
+//       }
+//         PlaySound("assets/shoot.wav")
+//         g.Ammo -= ammoCost
+//         if g.WeaponType == 2 {
+//         g.FireTimer = 6 
+//        }
+//      if g.WeaponType == 1 {
+//       g.FireTimer = 30 
+// 		}
+//
+// if g.GunFrameTimer > 0 {
+//     g.GunFrameTimer++
+//     if g.GunFrameTimer > 3 {
+//         g.GunFrameTimer = 1
+//         g.GunFrame++
+//         if g.GunFrame >= 8 {
+//             g.GunFrame = 0
+//             g.GunFrameTimer = 0 
+//         }
+//     }
+// }
+//         switch g.WeaponType {
 
 // entity movement and animation
 for i := range g.Entities {
@@ -532,4 +527,12 @@ func (g *Game) shootRay(angle float64, damage int) {
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return ScreenWidth, ScreenHeight
+}
+
+func isSpacePressed() bool {
+    return ebiten.IsKeyPressed(ebiten.KeySpace)
+}
+
+func isSpaceJustPressed() bool {
+    return inpututil.IsKeyJustPressed(ebiten.KeySpace)
 }

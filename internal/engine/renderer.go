@@ -68,17 +68,16 @@ func (g *Game) DrawMinimap() {
 
 //draw guns??
 func (g *Game) DrawGun(screen *ebiten.Image) {
-    weapon := g.WeaponType
-    if weapon >= len(weaponAnimations) {
-        weapon = 0
+    state := WeaponStates[g.WeaponStateID]
+    weaponIdx := state.Weapon
+    frameIdx := state.Frame
+
+    if weaponIdx >= len(weaponAnimations) {
+        weaponIdx = 0
     }
-    frames := weaponAnimations[weapon]
-    if len(frames) == 0 {
+    frames := weaponAnimations[weaponIdx]
+    if len(frames) == 0 || frameIdx >= len(frames) {
         return
-    }
-    frameIdx := 0
-    if g.GunFrameTimer > 0 && len(frames) > 1 {
-        frameIdx = 1 + g.GunFrame%(len(frames)-1)
     }
     img := frames[frameIdx]
     bounds := img.Bounds()
@@ -93,8 +92,6 @@ func (g *Game) DrawGun(screen *ebiten.Image) {
     op.GeoM.Translate(startX, startY)
     screen.DrawImage(img, op)
 }
-
-
 
 
 func (g *Game) DrawHUD() {
