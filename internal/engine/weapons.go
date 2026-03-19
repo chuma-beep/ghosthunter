@@ -181,3 +181,4 @@ func (g *Game) TickWeapon() {
 		g.SetWeaponState(state.NextState)
 	}
 }
+

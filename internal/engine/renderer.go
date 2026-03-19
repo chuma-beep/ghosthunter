@@ -241,7 +241,7 @@ for x := 0; x < ScreenWidth; x++ {
 			}
 			texIdx := (texY*TexSize + texX) * 4
 			// idx := (y*ScreenWidth + x) * 4
-            
+
              sy := y + shakeY
             if sy < 0 || sy >= ScreenHeight {
                continue
