@@ -34,7 +34,6 @@ type Game struct {
 	WeaponStateTics int
 }
 
-
 func enemyForMap(mapIndex int) EntityType {
 	switch mapIndex {
 	case 0:
@@ -51,7 +50,6 @@ func enemyForMap(mapIndex int) EntityType {
 		return EntityGhost
 	}
 }
-
 
 func NewGame() *Game {
 	highScore := LoadHighScore()
@@ -148,7 +146,6 @@ func (g *Game) moveEntity(i int, angle float64) {
 			return
 		}
 	}
-
 
 	// default movement with wall sliding
 	newEX := g.Entities[i].X + math.Cos(angle)*g.Entities[i].Speed
@@ -332,7 +329,7 @@ func (g *Game) Update() error {
 		dx := g.AmmoPickups[i].X - g.PlayerX
 		dy := g.AmmoPickups[i].Y - g.PlayerY
 		if math.Sqrt(dx*dx+dy*dy) < 0.8 {
-			g.Ammo += 8
+			g.Ammo += 5
 			g.AmmoPickups[i].Active = false
 		}
 	}
