@@ -119,15 +119,6 @@ doom-go/
 
 - **Enemy sprites** — [FPS Monster Enemies](https://opengameart.org/content/fps-monster-enemies) by Ragnar Random (CC0)
 - **Machinegun sprite** — [FP Animated Weapons E11](https://whiteknightstudios.itch.io/fp-animated-weapons-e11) by W_K_Studio (CC0)
-- All other assets are original or CC0
-
----
-
-## Built By
-
-**Wisdom Anwaegbu** ([@chuma-beep](https://github.com/chuma-beep))  
-Software Engineer | Go Developer | Game Dev Enthusiast  
-[portfolio3-seven-indol.vercel.app](https://portfolio3-seven-indol.vercel.app)
 
 ---
 
