@@ -73,8 +73,8 @@ sudo apt install libc6-dev libgles2-mesa-dev libxcursor-dev libxi-dev libxineram
 
 ### Run
 ```bash
-git clone https://github.com/chuma-beep/doom-go
-cd doom-go
+git clone https://github.com/chuma-beep/ghosthunter
+cd ghosthunter
 go run .
 ```
 
@@ -89,7 +89,7 @@ go build -o ghosthunter .
 ## Project Structure
 
 ```
-doom-go/
+ghosthunter/
 ├── main.go                  # Entry point, asset loading
 ├── maps/                    # JSON level files
 │   ├── map1.json            # The Haunted Halls (16x16)

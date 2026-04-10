@@ -1,4 +1,4 @@
-module doom-go
+module ghosthunter
 
 go 1.25.5
 
