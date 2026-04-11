@@ -79,11 +79,11 @@ var Weapons = []WeaponDef{
 	},
 }
 
-// WeaponStates is the global state table — the heart of the system
+// WeaponStates
 var WeaponStates = map[WeaponStateID]WeaponState{
 	S_NULL: {Weapon: 0, Frame: 0, Tics: -1, Action: nil, NextState: S_NULL},
 
-	// --- Pistol ---
+	// Pistol
 	S_PISTOL_UP:    {Weapon: 0, Frame: 0, Tics: 1, Action: nil, NextState: S_PISTOL_READY},
 	S_PISTOL_DOWN:  {Weapon: 0, Frame: 0, Tics: 1, Action: nil, NextState: S_PISTOL_READY},
 	S_PISTOL_READY: {Weapon: 0, Frame: 0, Tics: -1, Action: nil, NextState: S_PISTOL_READY},
@@ -91,7 +91,7 @@ var WeaponStates = map[WeaponStateID]WeaponState{
 	S_PISTOL_ATK2:  {Weapon: 0, Frame: 1, Tics: 4, Action: nil, NextState: S_PISTOL_ATK3},
 	S_PISTOL_ATK3:  {Weapon: 0, Frame: 0, Tics: 4, Action: nil, NextState: S_PISTOL_READY},
 
-	// --- Shotgun ---
+	// shotgun
 	S_SHOTGUN_UP:    {Weapon: 0, Frame: 0, Tics: 1, Action: nil, NextState: S_SHOTGUN_READY},
 	S_SHOTGUN_DOWN:  {Weapon: 0, Frame: 0, Tics: 1, Action: nil, NextState: S_SHOTGUN_READY},
 	S_SHOTGUN_READY: {Weapon: 0, Frame: 0, Tics: -1, Action: nil, NextState: S_SHOTGUN_READY},
@@ -100,7 +100,7 @@ var WeaponStates = map[WeaponStateID]WeaponState{
 	S_SHOTGUN_ATK3:  {Weapon: 0, Frame: 1, Tics: 6, Action: nil, NextState: S_SHOTGUN_ATK4},
 	S_SHOTGUN_ATK4:  {Weapon: 0, Frame: 0, Tics: 8, Action: nil, NextState: S_SHOTGUN_READY},
 
-	// --- Machinegun ---
+	// Machinegun 
 	S_MACHINEGUN_UP:    {Weapon: 2, Frame: 0, Tics: 1, Action: nil, NextState: S_MACHINEGUN_READY},
 	S_MACHINEGUN_DOWN:  {Weapon: 2, Frame: 0, Tics: 1, Action: nil, NextState: S_MACHINEGUN_READY},
 	S_MACHINEGUN_READY: {Weapon: 2, Frame: 0, Tics: -1, Action: nil, NextState: S_MACHINEGUN_READY},
@@ -114,7 +114,7 @@ var WeaponStates = map[WeaponStateID]WeaponState{
 	S_MACHINEGUN_ATK8:  {Weapon: 2, Frame: 8, Tics: 3, Action: nil, NextState: S_MACHINEGUN_READY},
 }
 
-// --- Action functions ---
+//  Action functions
 
 func A_FirePistol(g *Game) {
 	if g.Ammo < 1 {
