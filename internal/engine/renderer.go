@@ -1,12 +1,13 @@
 package engine
 
-
 import (
 	"fmt"
-	"image/color"
-	"math"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/text"
+	"golang.org/x/image/font/basicfont"
+	"image/color"
+	"math"
 )
 
 func min(a, b int) int {
@@ -65,34 +66,32 @@ func (g *Game) DrawMinimap() {
 	}
 }
 
-
-//draw guns??
+// draw guns??
 func (g *Game) DrawGun(screen *ebiten.Image) {
-    state := WeaponStates[g.WeaponStateID]
-    weaponIdx := state.Weapon
-    frameIdx := state.Frame
+	state := WeaponStates[g.WeaponStateID]
+	weaponIdx := state.Weapon
+	frameIdx := state.Frame
 
-    if weaponIdx >= len(weaponAnimations) {
-        weaponIdx = 0
-    }
-    frames := weaponAnimations[weaponIdx]
-    if len(frames) == 0 || frameIdx >= len(frames) {
-        return
-    }
-    img := frames[frameIdx]
-    bounds := img.Bounds()
-    dstW := ScreenWidth / 2
-    dstH := ScreenHeight / 2
-    startX := float64(ScreenWidth-dstW) / 2
-    startY := float64(ScreenHeight-dstH+g.GunKick)
-    scaleX := float64(dstW) / float64(bounds.Max.X)
-    scaleY := float64(dstH) / float64(bounds.Max.Y)
-    op := &ebiten.DrawImageOptions{}
-    op.GeoM.Scale(scaleX, scaleY)
-    op.GeoM.Translate(startX, startY)
-    screen.DrawImage(img, op)
+	if weaponIdx >= len(weaponAnimations) {
+		weaponIdx = 0
+	}
+	frames := weaponAnimations[weaponIdx]
+	if len(frames) == 0 || frameIdx >= len(frames) {
+		return
+	}
+	img := frames[frameIdx]
+	bounds := img.Bounds()
+	dstW := ScreenWidth / 2
+	dstH := ScreenHeight / 2
+	startX := float64(ScreenWidth-dstW) / 2
+	startY := float64(ScreenHeight - dstH + g.GunKick)
+	scaleX := float64(dstW) / float64(bounds.Max.X)
+	scaleY := float64(dstH) / float64(bounds.Max.Y)
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(scaleX, scaleY)
+	op.GeoM.Translate(startX, startY)
+	screen.DrawImage(img, op)
 }
-
 
 func (g *Game) DrawHUD() {
 	barWidth := 100
@@ -155,10 +154,9 @@ func (g *Game) DrawHUD() {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 
-   if len(g.Pixels) != ScreenWidth*ScreenHeight*4 {
-    g.Pixels = make([]byte, ScreenWidth*ScreenHeight*4)
-}
-
+	if len(g.Pixels) != ScreenWidth*ScreenHeight*4 {
+		g.Pixels = make([]byte, ScreenWidth*ScreenHeight*4)
+	}
 
 	// --- Start screen ---
 	if g.GameState == 0 {
@@ -182,21 +180,21 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		g.Pixels[i] = 0
 	}
 
-    // shake offset
+	// shake offset
 	shakeX := 0
-shakeY := 0
-if g.ScreenShake > 0 {
-    shakeX = (g.ScreenShake % 3) - 1
-    shakeY = (g.ScreenShake % 2) - 1
-    g.ScreenShake--
-}
+	shakeY := 0
+	if g.ScreenShake > 0 {
+		shakeX = (g.ScreenShake % 3) - 1
+		shakeY = (g.ScreenShake % 2) - 1
+		g.ScreenShake--
+	}
 
 	zBuffer := make([]float64, ScreenWidth)
 	fov := math.Pi / 3
 
 	// --- Ray loop ---
-for x := 0; x < ScreenWidth; x++ {
-    rayAngle := g.Angle + float64(shakeX)*0.003 - fov/2 + fov*float64(x)/float64(ScreenWidth)
+	for x := 0; x < ScreenWidth; x++ {
+		rayAngle := g.Angle + float64(shakeX)*0.003 - fov/2 + fov*float64(x)/float64(ScreenWidth)
 		var distance float64
 		for distance = 0; distance < 32; distance += 0.01 {
 			rayX := g.PlayerX + math.Cos(rayAngle)*distance
@@ -242,11 +240,11 @@ for x := 0; x < ScreenWidth; x++ {
 			texIdx := (texY*TexSize + texX) * 4
 			// idx := (y*ScreenWidth + x) * 4
 
-             sy := y + shakeY
-            if sy < 0 || sy >= ScreenHeight {
-               continue
-            }
-            idx := (sy*ScreenWidth + x) * 4
+			sy := y + shakeY
+			if sy < 0 || sy >= ScreenHeight {
+				continue
+			}
+			idx := (sy*ScreenWidth + x) * 4
 
 			var tex []byte
 			if g.CurrentMap == 0 {
@@ -336,32 +334,31 @@ for x := 0; x < ScreenWidth; x++ {
 			continue
 		}
 
-
 		var tex []byte
-var texSize int
-var frameCount int 
-switch sprite.Type {
-case EntityWizard:
-    tex = wizardTexture[:]
-    texSize = wizardTexSize
-	frameCount = 1
-case EntityDemon:
-    tex = demonTexture
-    texSize = 64
-	frameCount = demonFrames
-case EntityWraith:
-    tex = wraithTexture
-    texSize = 64
-	frameCount = wraithFrames
-case EntityReaper:
-    tex = reaperTexture
-    texSize = 64
-	frameCount = reaperFrames
-default:
-    tex = spriteTexture[:]
-    texSize = spriteTexSize
-	frameCount = 1
-}
+		var texSize int
+		var frameCount int
+		switch sprite.Type {
+		case EntityWizard:
+			tex = wizardTexture[:]
+			texSize = wizardTexSize
+			frameCount = 1
+		case EntityDemon:
+			tex = demonTexture
+			texSize = 64
+			frameCount = demonFrames
+		case EntityWraith:
+			tex = wraithTexture
+			texSize = 64
+			frameCount = wraithFrames
+		case EntityReaper:
+			tex = reaperTexture
+			texSize = 64
+			frameCount = reaperFrames
+		default:
+			tex = spriteTexture[:]
+			texSize = spriteTexSize
+			frameCount = 1
+		}
 		spriteScreenX := int((0.5 + spriteAngle/fov) * float64(ScreenWidth))
 		spriteHeight := int(float64(ScreenHeight) / spriteDist)
 		if spriteHeight == 0 {
@@ -388,7 +385,7 @@ default:
 			if spriteDist >= zBuffer[sx] {
 				continue
 			}
-tX := (sx-xStart)*texSize/spriteWidth + sprite.Frame*texSize
+			tX := (sx-xStart)*texSize/spriteWidth + sprite.Frame*texSize
 			for sy := yStart; sy < yEnd; sy++ {
 				tY := (sy - yStart) * texSize / spriteHeight
 				texIdx := (tY*texSize*frameCount + tX) * 4
@@ -469,66 +466,73 @@ tX := (sx-xStart)*texSize/spriteWidth + sprite.Frame*texSize
 		}
 	}
 
-
 	// health pickups
-for _, pickup := range g.HealthPickups {
-    if !pickup.Active {
-        continue
-    }
-    dx := pickup.X - g.PlayerX
-    dy := pickup.Y - g.PlayerY
-    spriteDist := math.Sqrt(dx*dx + dy*dy)
-    spriteAngle := math.Atan2(dy, dx) - g.Angle
-    for spriteAngle > math.Pi {
-        spriteAngle -= 2 * math.Pi
-    }
-    for spriteAngle < -math.Pi {
-        spriteAngle += 2 * math.Pi
-    }
-    if math.Abs(spriteAngle) >= fov/2 {
-        continue
-    }
-    spriteScreenX := int((0.5 + spriteAngle/fov) * float64(ScreenWidth))
-    spriteHeight := int(float64(ScreenHeight)/spriteDist) / 2
-    if spriteHeight == 0 {
-        continue
-    }
-    spriteWidth := spriteHeight
-    yStart := (ScreenHeight - spriteHeight) / 2
-    yEnd := (ScreenHeight + spriteHeight) / 2
-    xStart := spriteScreenX - spriteWidth/2
-    xEnd := spriteScreenX + spriteWidth/2
-    if yStart < 0 { yStart = 0 }
-    if yEnd > ScreenHeight { yEnd = ScreenHeight }
-    if xStart < 0 { xStart = 0 }
-    if xEnd > ScreenWidth { xEnd = ScreenWidth }
-    for sx := xStart; sx < xEnd; sx++ {
-        if spriteDist >= zBuffer[sx] {
-            continue
-        }
-        for sy := yStart; sy < yEnd; sy++ {
-            idx := (sy*ScreenWidth + sx) * 4
-            if idx+3 >= len(g.Pixels) {
-                continue
-            }
-            // red cross pattern
-            cx := (xStart + xEnd) / 2
-            cy := (yStart + yEnd) / 2
-            onCross := (sx == cx) || (sy == cy)
-            if onCross {
-                g.Pixels[idx+0] = 255
-                g.Pixels[idx+1] = 0
-                g.Pixels[idx+2] = 0
-                g.Pixels[idx+3] = 255
-            } else {
-                g.Pixels[idx+0] = 200
-                g.Pixels[idx+1] = 200
-                g.Pixels[idx+2] = 200
-                g.Pixels[idx+3] = 255
-            }
-        }
-    }
-}
+	for _, pickup := range g.HealthPickups {
+		if !pickup.Active {
+			continue
+		}
+		dx := pickup.X - g.PlayerX
+		dy := pickup.Y - g.PlayerY
+		spriteDist := math.Sqrt(dx*dx + dy*dy)
+		spriteAngle := math.Atan2(dy, dx) - g.Angle
+		for spriteAngle > math.Pi {
+			spriteAngle -= 2 * math.Pi
+		}
+		for spriteAngle < -math.Pi {
+			spriteAngle += 2 * math.Pi
+		}
+		if math.Abs(spriteAngle) >= fov/2 {
+			continue
+		}
+		spriteScreenX := int((0.5 + spriteAngle/fov) * float64(ScreenWidth))
+		spriteHeight := int(float64(ScreenHeight)/spriteDist) / 2
+		if spriteHeight == 0 {
+			continue
+		}
+		spriteWidth := spriteHeight
+		yStart := (ScreenHeight - spriteHeight) / 2
+		yEnd := (ScreenHeight + spriteHeight) / 2
+		xStart := spriteScreenX - spriteWidth/2
+		xEnd := spriteScreenX + spriteWidth/2
+		if yStart < 0 {
+			yStart = 0
+		}
+		if yEnd > ScreenHeight {
+			yEnd = ScreenHeight
+		}
+		if xStart < 0 {
+			xStart = 0
+		}
+		if xEnd > ScreenWidth {
+			xEnd = ScreenWidth
+		}
+		for sx := xStart; sx < xEnd; sx++ {
+			if spriteDist >= zBuffer[sx] {
+				continue
+			}
+			for sy := yStart; sy < yEnd; sy++ {
+				idx := (sy*ScreenWidth + sx) * 4
+				if idx+3 >= len(g.Pixels) {
+					continue
+				}
+				// red cross pattern
+				cx := (xStart + xEnd) / 2
+				cy := (yStart + yEnd) / 2
+				onCross := (sx == cx) || (sy == cy)
+				if onCross {
+					g.Pixels[idx+0] = 255
+					g.Pixels[idx+1] = 0
+					g.Pixels[idx+2] = 0
+					g.Pixels[idx+3] = 255
+				} else {
+					g.Pixels[idx+0] = 200
+					g.Pixels[idx+1] = 200
+					g.Pixels[idx+2] = 200
+					g.Pixels[idx+3] = 255
+				}
+			}
+		}
+	}
 
 	// --- Portal ---
 	var portalX, portalY float64
@@ -617,15 +621,66 @@ for _, pickup := range g.HealthPickups {
 		g.DamageFlash--
 	}
 
+	g.DrawHUD()
+	g.DrawMinimap()
+	screen.ReplacePixels(g.Pixels)
+	g.DrawGun(screen)
 
-  g.DrawHUD()
-  g.DrawMinimap()
-  screen.ReplacePixels(g.Pixels)
-  g.DrawGun(screen)
-	
 	// --- Overlays ---
 	if g.Paused {
-		ebitenutil.DebugPrint(screen, "\n\n\n\n\n\n\n          PAUSED\n\n          Press ESC to resume\n          Press R to restart\n    Press Q to quit")
+		// Darken the existing pixel buffer (multiply RGB by 0.3, alpha unchanged)
+		for i := 0; i < len(g.Pixels); i += 4 {
+			r := float64(g.Pixels[i]) * 0.3
+			gn := float64(g.Pixels[i+1]) * 0.3
+			b := float64(g.Pixels[i+2]) * 0.3
+			g.Pixels[i] = uint8(r)
+			g.Pixels[i+1] = uint8(gn)
+			g.Pixels[i+2] = uint8(b)
+		}
+		screen.ReplacePixels(g.Pixels)
+
+		menuImg := ebiten.NewImage(ScreenWidth, ScreenHeight)
+		fontFace := basicfont.Face7x13
+
+		if g.ShowControls {
+			controls := []string{
+				"CONTROLS",
+				"",
+				"Arrow Keys : Move",
+				"Space      : Shoot",
+				"Escape    : Pause",
+				"",
+				"Press ESC to go back",
+			}
+			startY := 80
+			for i, line := range controls {
+				x := (ScreenWidth - len(line)*fontFace.Width) / 2
+				y := startY + i*fontFace.Height
+				text.Draw(menuImg, line, fontFace, x, y, color.White)
+			}
+		} else {
+			menuItems := []string{"Resume", "Controls", "Quit"}
+			startY := ScreenHeight / 3
+			for i, item := range menuItems {
+				y := startY + i*fontFace.Height*2
+
+				if i == g.PauseMenuSelection {
+					arrowX := ScreenWidth/2 - fontFace.Width*5
+					text.Draw(menuImg, ">", fontFace, arrowX, y, color.RGBA{255, 255, 0, 255})
+					textX := ScreenWidth/2 - fontFace.Width*2
+					text.Draw(menuImg, item, fontFace, textX, y, color.RGBA{255, 255, 0, 255})
+				} else {
+					textX := ScreenWidth/2 - (len(item)/2)*fontFace.Width
+					text.Draw(menuImg, item, fontFace, textX, y, color.White)
+				}
+			}
+			hint := "Use Arrow Keys and ENTER | ESC to resume"
+			hintX := (ScreenWidth - len(hint)*fontFace.Width) / 2
+			hintY := ScreenHeight - 40
+			text.Draw(menuImg, hint, fontFace, hintX, hintY, color.RGBA{200, 200, 200, 255})
+		}
+
+		screen.DrawImage(menuImg, nil)
 		return
 	}
 	if g.WaveTransition > 0 {
@@ -635,21 +690,17 @@ for _, pickup := range g.HealthPickups {
 		ebitenutil.DebugPrint(screen, fmt.Sprintf("\n\n\n\n\n          %s", MapNames[g.CurrentMap]))
 	}
 
+	// weapon name
+	var weaponName string
+	switch g.WeaponType {
+	case 0:
+		weaponName = "PISTOL"
+	case 1:
+		weaponName = "SHOTGUN"
+	case 2:
+		weaponName = "MACHINEGUN"
+	}
 
-
-   
-   // weapon name 
-	 var weaponName string 
-	 switch g.WeaponType {
-	 case 0:
-		   weaponName = "PISTOL"
-	 case 1: 
-	     weaponName = "SHOTGUN"
-	 case 2: 
-	     weaponName = "MACHINEGUN"
-	 }
-
-
-    ebitenutil.DebugPrint(screen, fmt.Sprintf("Wave: %d  Score: %d  Best: %d  Health: %d  Ammo: %d  [%s]",
-    g.Wave, g.Score, g.HighScore, g.Health, g.Ammo, weaponName))
+	ebitenutil.DebugPrint(screen, fmt.Sprintf("Wave: %d  Score: %d  Best: %d  Health: %d  Ammo: %d  [%s]",
+		g.Wave, g.Score, g.HighScore, g.Health, g.Ammo, weaponName))
 }

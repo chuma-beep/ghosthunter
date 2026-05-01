@@ -1,8 +1,8 @@
 package engine
 
 import (
+	"errors"
 	"math"
-
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
@@ -32,6 +32,8 @@ type Game struct {
 	WeaponType      int
 	WeaponStateID   WeaponStateID
 	WeaponStateTics int
+    PauseMenuSelection int 
+	ShowControls    bool 
 }
 
 func enemyForMap(mapIndex int) EntityType {
@@ -206,14 +208,62 @@ func (g *Game) Update() error {
 		return ebiten.Termination
 	}
 
-	// pause menu
-	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
-		g.Paused = !g.Paused
-	}
-	if g.Paused {
-		return nil
-	}
+    if inpututil.IsKeyJustPressed(ebiten.KeyEscape){
+		if g.ShowControls{
+			g.ShowControls = false 
+		}else {
+			g.Paused = !g.Paused
+		}
+}      
 
+
+    if g.Paused {
+        // When a controls submenu is active, handle its specific input
+        if g.ShowControls {
+            // Press Escape to close the controls screen, returning to the pause menu
+            if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
+                g.ShowControls = false
+            }
+            // You might also add other keys to scroll through controls info if needed
+            return nil
+        }
+
+        // --- Standard pause menu navigation ---
+        // Up/Down keys change the selected menu item
+        if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
+            g.PauseMenuSelection--
+            if g.PauseMenuSelection < 0 {
+                g.PauseMenuSelection = 2 // last item index (assuming 3 options: 0,1,2)
+            }
+        }
+        if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
+            g.PauseMenuSelection++
+            if g.PauseMenuSelection > 2 {
+                g.PauseMenuSelection = 0
+            }
+        }
+
+        // Enter key confirms the selection
+        if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
+            switch g.PauseMenuSelection {
+            case 0: // Resume
+                g.Paused = false
+                g.PauseMenuSelection = 0 // reset for next pause
+            case 1: // Show controls
+                g.ShowControls = true
+                // Keep paused, selection unchanged – when controls close, we return to pause menu
+            case 2: // Quit
+                // e.g., os.Exit(0) or signal a quit
+                return errors.New("quit requested")
+            }
+        }
+
+
+        return nil
+    }
+
+
+    
 	// wave transition decay
 	if g.WaveTransition > 0 {
 		g.WaveTransition--
