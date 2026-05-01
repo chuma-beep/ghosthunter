@@ -62,7 +62,7 @@ func NewGame() *Game {
 		PlayerY:         8.0,
 		Angle:           0.0,
 		Wave:            1,
-		Ammo:            10,
+		Ammo:            30,
 		GameState:       0,
 		Health:          100,
 		HighScore:       highScore,
@@ -274,7 +274,7 @@ func (g *Game) Update() error {
 		if inpututil.IsKeyJustPressed(ebiten.KeyR) {
 			g.Health = 100
 			g.Score = 0
-			g.Ammo = 10
+			g.Ammo = 30
 			g.Wave = 1
 			g.RespawnTimer = 0
 			g.CurrentMap = 0
