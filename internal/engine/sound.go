@@ -1,42 +1,40 @@
-package engine 
+package engine
 
-import(
-	"bytes" 
+import (
+	"bytes"
 	"log"
-	"os"
 
 	"github.com/hajimehoshi/ebiten/v2/audio"
+	"github.com/hajimehoshi/ebiten/v2/audio/mp3"
 	"github.com/hajimehoshi/ebiten/v2/audio/wav"
-  "github.com/hajimehoshi/ebiten/v2/audio/mp3"
 )
 
-var audioContext *audio.Context 
+var audioContext *audio.Context
 
 func InitAudio() {
 	audioContext = audio.NewContext(44100)
 }
 
-
 func PlaySound(path string) {
-	if audioContext == nil{
-		return 
+	if audioContext == nil {
+		return
 	}
-	f, err := os.ReadFile(path)
-	if  err != nil {
+	data, err := assets.ReadFile(path)
+	if err != nil {
 		log.Println("sound error:", err)
-		return 
+		return
 	}
 
-	stream, err := wav.DecodeWithoutResampling(bytes.NewReader(f))
-	if err != nil{
+	stream, err := wav.DecodeWithoutResampling(bytes.NewReader(data))
+	if err != nil {
 		log.Println("decode error:", err)
 		return
 	}
 
-    player, err := audioContext.NewPlayer(stream) 
-	if err != nil{
+	player, err := audioContext.NewPlayer(stream)
+	if err != nil {
 		log.Println("player error:", err)
-		return 
+		return
 	}
 
 	player.Play()
@@ -45,25 +43,25 @@ func PlaySound(path string) {
 var musicPlayer *audio.Player
 
 func PlayMusic(path string) {
-    f, err := os.ReadFile(path)
-    if err != nil {
-        log.Println("music error:", err)
-        return
-    }
+	data, err := assets.ReadFile(path)
+	if err != nil {
+		log.Println("music error:", err)
+		return
+	}
 
-    stream, err := mp3.DecodeWithoutResampling(bytes.NewReader(f))
-    if err != nil {
-        log.Println("music decode error:", err)
-        return
-    }
+	stream, err := mp3.DecodeWithoutResampling(bytes.NewReader(data))
+	if err != nil {
+		log.Println("music decode error:", err)
+		return
+	}
 
-    loop := audio.NewInfiniteLoop(stream, stream.Length())
+	loop := audio.NewInfiniteLoop(stream, stream.Length())
 
-    musicPlayer, err = audioContext.NewPlayer(loop)
-    if err != nil {
-        log.Println("music player error:", err)
-        return
-    }
+	musicPlayer, err = audioContext.NewPlayer(loop)
+	if err != nil {
+		log.Println("music player error:", err)
+		return
+	}
 
-    musicPlayer.Play()
+	musicPlayer.Play()
 }
