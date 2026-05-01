@@ -361,7 +361,7 @@ func (g *Game) Update() error {
 	if ebiten.IsKeyPressed(ebiten.KeyArrowRight) {
 		g.Angle += 0.05
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyArrowUp) {
+	if ebiten.IsKeyPressed(ebiten.KeyArrowUp) || (g.AI != nil && g.AI.Enabled && g.AI.MoveForward) {
 		newX := g.PlayerX + math.Cos(g.Angle)*0.08
 		newY := g.PlayerY + math.Sin(g.Angle)*0.08
 		if int(newY) >= 0 && int(newY) < GetMapHeight(g.CurrentMap) &&
@@ -371,7 +371,7 @@ func (g *Game) Update() error {
 			g.PlayerY = newY
 		}
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyArrowDown) {
+	if ebiten.IsKeyPressed(ebiten.KeyArrowDown) || (g.AI != nil && g.AI.Enabled && g.AI.MoveBackward) {
 		newX := g.PlayerX - math.Cos(g.Angle)*0.08
 		newY := g.PlayerY - math.Sin(g.Angle)*0.08
 		if int(newY) >= 0 && int(newY) < GetMapHeight(g.CurrentMap) &&
