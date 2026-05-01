@@ -731,13 +731,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	var weaponName string
 	switch g.WeaponType {
 	case 0:
-		weaponName = "PISTOL"
+		weaponName = "PST"
 	case 1:
-		weaponName = "SHOTGUN"
+		weaponName = "SG"
 	case 2:
-		weaponName = "MACHINEGUN"
+		weaponName = "MG"
 	}
-	hudText := fmt.Sprintf("Wave: %d  Score: %d  Best: %d  Health: %d  Ammo: %d  [%s]",
-		g.Wave, g.Score, g.HighScore, g.Health, g.Ammo, weaponName)
-	text.Draw(screen, hudText, basicfont.Face7x13, 5, ScreenHeight-5, color.White)
+	hudText := fmt.Sprintf("W%d S%d H%d A%d+%s", g.Wave, g.Score, g.Health, g.Ammo, weaponName)
+	x := ScreenWidth - len(hudText)*basicfont.Face7x13.Width - 20
+	text.Draw(screen, hudText, basicfont.Face7x13, x, 15, color.RGBA{120, 120, 120, 255})
 }
