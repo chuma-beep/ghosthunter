@@ -100,7 +100,7 @@ var WeaponStates = map[WeaponStateID]WeaponState{
 	S_SHOTGUN_ATK3:  {Weapon: 0, Frame: 1, Tics: 6, Action: nil, NextState: S_SHOTGUN_ATK4},
 	S_SHOTGUN_ATK4:  {Weapon: 0, Frame: 0, Tics: 8, Action: nil, NextState: S_SHOTGUN_READY},
 
-	// Machinegun 
+	// Machinegun
 	S_MACHINEGUN_UP:    {Weapon: 2, Frame: 0, Tics: 1, Action: nil, NextState: S_MACHINEGUN_READY},
 	S_MACHINEGUN_DOWN:  {Weapon: 2, Frame: 0, Tics: 1, Action: nil, NextState: S_MACHINEGUN_READY},
 	S_MACHINEGUN_READY: {Weapon: 2, Frame: 0, Tics: -1, Action: nil, NextState: S_MACHINEGUN_READY},
@@ -166,10 +166,11 @@ func (g *Game) TickWeapon() {
 	if state.Tics == -1 {
 		// waiting for input — check for fire
 		canFire := false
+		aiFiring := g.AI != nil && g.AI.Enabled && g.AI.ShootRequested
 		if g.WeaponType == 2 {
-			canFire = isSpacePressed()
+			canFire = isSpacePressed() || aiFiring
 		} else {
-			canFire = isSpaceJustPressed()
+			canFire = isSpaceJustPressed() || aiFiring
 		}
 		if canFire && g.Ammo > 0 {
 			g.SetWeaponState(Weapons[g.WeaponType].AtkState)
@@ -181,4 +182,3 @@ func (g *Game) TickWeapon() {
 		g.SetWeaponState(state.NextState)
 	}
 }
-

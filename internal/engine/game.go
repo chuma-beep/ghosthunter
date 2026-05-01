@@ -2,38 +2,39 @@ package engine
 
 import (
 	"errors"
-	"math"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"math"
 )
 
 type Game struct {
-	Pixels          []byte
-	PlayerX         float64
-	PlayerY         float64
-	Angle           float64
-	Score           int
-	RespawnTimer    int
-	Health          int
-	DamageFlash     int
-	Wave            int
-	GunKick         int
-	Ammo            int
-	AmmoPickups     []AmmoPickup
-	HealthPickups   []HealthPickup
-	GameState       int
-	HighScore       int
-	CurrentMap      int
-	Entities        []Entity
-	LevelNameTimer  int
-	WaveTransition  int
-	Paused          bool
-	ScreenShake     int
-	WeaponType      int
-	WeaponStateID   WeaponStateID
-	WeaponStateTics int
-    PauseMenuSelection int 
-	ShowControls    bool 
+	Pixels             []byte
+	PlayerX            float64
+	PlayerY            float64
+	Angle              float64
+	Score              int
+	RespawnTimer       int
+	Health             int
+	DamageFlash        int
+	Wave               int
+	GunKick            int
+	Ammo               int
+	AmmoPickups        []AmmoPickup
+	HealthPickups      []HealthPickup
+	GameState          int
+	HighScore          int
+	CurrentMap         int
+	Entities           []Entity
+	LevelNameTimer     int
+	WaveTransition     int
+	Paused             bool
+	ScreenShake        int
+	WeaponType         int
+	WeaponStateID      WeaponStateID
+	WeaponStateTics    int
+	PauseMenuSelection int
+	ShowControls       bool
+	AI                 *AIController
 }
 
 func enemyForMap(mapIndex int) EntityType {
@@ -55,7 +56,7 @@ func enemyForMap(mapIndex int) EntityType {
 
 func NewGame() *Game {
 	highScore := LoadHighScore()
-	return &Game{
+	game := &Game{
 		Pixels:          make([]byte, ScreenWidth*ScreenHeight*4),
 		CurrentMap:      0,
 		PlayerX:         8.0,
@@ -78,42 +79,42 @@ func NewGame() *Game {
 			{X: 3.0, Y: 7.0, Active: true},
 			{X: 11.0, Y: 5.0, Active: true},
 		},
-    Entities: []Entity{
-      {X: 3.0, Y: 1.0, Type: EntityGhost, Health: 1, Speed: 0.003, Damage: 1},
-      {X: 7.0, Y: 1.0, Type: EntityGhost, Health: 1, Speed: 0.003, Damage: 1},
-      {X: 12.0, Y: 1.0, Type: EntityGhost, Health: 1, Speed: 0.003, Damage: 1},
-    },
+		Entities: []Entity{
+			{X: 3.0, Y: 1.0, Type: EntityGhost, Health: 1, Speed: 0.003, Damage: 1},
+			{X: 7.0, Y: 1.0, Type: EntityGhost, Health: 1, Speed: 0.003, Damage: 1},
+			{X: 12.0, Y: 1.0, Type: EntityGhost, Health: 1, Speed: 0.003, Damage: 1},
+		},
 	}
+	game.AI = NewAIController()
+	return game
 }
 
 // LineOfSight casts a ray from (x1,y1) to (x2,y2) and returns true if no wall blocks it
 func (g *Game) LineOfSight(x1, y1, x2, y2 float64) bool {
-    dx := x2 - x1
-    dy := y2 - y1
-    dist := math.Sqrt(dx*dx + dy*dy)
-    if dist > 15.0 {
-        return false
-    }
-    steps := int(dist / 0.5) // coarser steps
-    if steps < 2 {
-        steps = 2
-    }
-    for i := 1; i < steps; i++ {
-        t := float64(i) / float64(steps)
-        rx := x1 + dx*t
-        ry := y1 + dy*t
-        if int(ry) < 0 || int(ry) >= GetMapHeight(g.CurrentMap) ||
-            int(rx) < 0 || int(rx) >= GetMapWidth(g.CurrentMap) {
-            return false
-        }
-        if GetMap(g.CurrentMap)[int(ry)][int(rx)] == 1 {
-            return false
-        }
-    }
-    return true
+	dx := x2 - x1
+	dy := y2 - y1
+	dist := math.Sqrt(dx*dx + dy*dy)
+	if dist > 15.0 {
+		return false
+	}
+	steps := int(dist / 0.5) // coarser steps
+	if steps < 2 {
+		steps = 2
+	}
+	for i := 1; i < steps; i++ {
+		t := float64(i) / float64(steps)
+		rx := x1 + dx*t
+		ry := y1 + dy*t
+		if int(ry) < 0 || int(ry) >= GetMapHeight(g.CurrentMap) ||
+			int(rx) < 0 || int(rx) >= GetMapWidth(g.CurrentMap) {
+			return false
+		}
+		if GetMap(g.CurrentMap)[int(ry)][int(rx)] == 1 {
+			return false
+		}
+	}
+	return true
 }
-
-
 
 // moveEntity moves entity i toward angle, with wall sliding and type-specific behavior
 func (g *Game) moveEntity(i int, angle float64) {
@@ -208,62 +209,72 @@ func (g *Game) Update() error {
 		return ebiten.Termination
 	}
 
-    if inpututil.IsKeyJustPressed(ebiten.KeyEscape){
-		if g.ShowControls{
-			g.ShowControls = false 
-		}else {
+	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
+		if g.ShowControls {
+			g.ShowControls = false
+		} else {
 			g.Paused = !g.Paused
 		}
-}      
+	}
 
+	// Toggle AI with A key
+	if inpututil.IsKeyJustPressed(ebiten.KeyA) {
+		if g.AI != nil {
+			g.AI.Enabled = !g.AI.Enabled
+			println("AI enabled:", g.AI.Enabled)
+		}
+	}
 
-    if g.Paused {
-        // When a controls submenu is active, handle its specific input
-        if g.ShowControls {
-            // Press Escape to close the controls screen, returning to the pause menu
-            if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
-                g.ShowControls = false
-            }
-            // You might also add other keys to scroll through controls info if needed
-            return nil
-        }
+	// AI update
+	if g.GameState == 1 && g.AI != nil && !g.Paused {
+		g.AI.ShootRequested = false
+		g.AI.Update(g)
+	}
 
-        // --- Standard pause menu navigation ---
-        // Up/Down keys change the selected menu item
-        if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
-            g.PauseMenuSelection--
-            if g.PauseMenuSelection < 0 {
-                g.PauseMenuSelection = 2 // last item index (assuming 3 options: 0,1,2)
-            }
-        }
-        if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
-            g.PauseMenuSelection++
-            if g.PauseMenuSelection > 2 {
-                g.PauseMenuSelection = 0
-            }
-        }
+	if g.Paused {
+		// When a controls submenu is active, handle its specific input
+		if g.ShowControls {
+			// Press Escape to close the controls screen, returning to the pause menu
+			if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
+				g.ShowControls = false
+			}
+			// You might also add other keys to scroll through controls info if needed
+			return nil
+		}
 
-        // Enter key confirms the selection
-        if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
-            switch g.PauseMenuSelection {
-            case 0: // Resume
-                g.Paused = false
-                g.PauseMenuSelection = 0 // reset for next pause
-            case 1: // Show controls
-                g.ShowControls = true
-                // Keep paused, selection unchanged – when controls close, we return to pause menu
-            case 2: // Quit
-                // e.g., os.Exit(0) or signal a quit
-                return errors.New("quit requested")
-            }
-        }
+		// --- Standard pause menu navigation ---
+		// Up/Down keys change the selected menu item
+		if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
+			g.PauseMenuSelection--
+			if g.PauseMenuSelection < 0 {
+				g.PauseMenuSelection = 2 // last item index (assuming 3 options: 0,1,2)
+			}
+		}
+		if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
+			g.PauseMenuSelection++
+			if g.PauseMenuSelection > 2 {
+				g.PauseMenuSelection = 0
+			}
+		}
 
+		// Enter key confirms the selection
+		if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
+			switch g.PauseMenuSelection {
+			case 0: // Resume
+				g.Paused = false
+				g.PauseMenuSelection = 0 // reset for next pause
+			case 1: // Show controls
+				g.ShowControls = true
+				// Keep paused, selection unchanged – when controls close, we return to pause menu
+			case 2: // Quit
+				// e.g., os.Exit(0) or signal a quit
+				return errors.New("quit requested")
+			}
+		}
 
-        return nil
-    }
+		return nil
+	}
 
-
-    
 	// wave transition decay
 	if g.WaveTransition > 0 {
 		g.WaveTransition--
@@ -284,11 +295,11 @@ func (g *Game) Update() error {
 			g.GameState = 1
 			g.WeaponStateID = S_PISTOL_READY
 			g.WeaponStateTics = -1
-      g.Entities = []Entity{
-        {X: 3.0, Y: 1.0, Type: EntityGhost, Health: 1, Speed: 0.003, Damage: 1},
-        {X: 7.0, Y: 1.0, Type: EntityGhost, Health: 1, Speed: 0.003, Damage: 1},
-        {X: 12.0, Y: 1.0, Type: EntityGhost, Health: 1, Speed: 0.003, Damage: 1},
-      }
+			g.Entities = []Entity{
+				{X: 3.0, Y: 1.0, Type: EntityGhost, Health: 1, Speed: 0.003, Damage: 1},
+				{X: 7.0, Y: 1.0, Type: EntityGhost, Health: 1, Speed: 0.003, Damage: 1},
+				{X: 12.0, Y: 1.0, Type: EntityGhost, Health: 1, Speed: 0.003, Damage: 1},
+			}
 		}
 		return nil
 	}
@@ -322,14 +333,14 @@ func (g *Game) Update() error {
 		g.PlayerY = 1.5
 		g.RespawnTimer = 0
 		g.LevelNameTimer = 60
-    positions := [][2]float64{
-       {3.0, 1.0}, {7.0, 1.0}, {12.0, 1.0},
-    }
-    if g.CurrentMap >= 2 {
-      positions = [][2]float64{
-        {15.0, 15.0}, {25.0, 5.0}, {5.0, 25.0},
-      }
-    }
+		positions := [][2]float64{
+			{3.0, 1.0}, {7.0, 1.0}, {12.0, 1.0},
+		}
+		if g.CurrentMap >= 2 {
+			positions = [][2]float64{
+				{15.0, 15.0}, {25.0, 5.0}, {5.0, 25.0},
+			}
+		}
 		g.Entities = []Entity{}
 		for _, pos := range positions {
 			g.Entities = append(g.Entities, Entity{
@@ -428,19 +439,17 @@ func (g *Game) Update() error {
 		angle := math.Atan2(dy, dx)
 		// hasLOS := g.LineOfSight(g.Entities[i].X, g.Entities[i].Y, g.PlayerX, g.PlayerY)
 
-    // only recheck LOS every 10 frames
-  // g.Entities[i].LOSTimer++
-  // if g.Entities[i].LOSTimer >= 20 {
-  //   g.Entities[i].LOSTimer = 0
-  //   g.Entities[i].HasLOS = g.LineOfSight(
-  //       g.Entities[i].X, g.Entities[i].Y,
-  //       g.PlayerX, g.PlayerY,
-  //   )
-  // }
-  // hasLOS := g.Entities[i].HasLOS
-  hasLOS := true
-
-
+		// only recheck LOS every 10 frames
+		// g.Entities[i].LOSTimer++
+		// if g.Entities[i].LOSTimer >= 20 {
+		//   g.Entities[i].LOSTimer = 0
+		//   g.Entities[i].HasLOS = g.LineOfSight(
+		//       g.Entities[i].X, g.Entities[i].Y,
+		//       g.PlayerX, g.PlayerY,
+		//   )
+		// }
+		// hasLOS := g.Entities[i].HasLOS
+		hasLOS := true
 
 		switch g.Entities[i].State {
 		case StateChase:
@@ -505,17 +514,17 @@ func (g *Game) Update() error {
 			g.Ammo += 3
 			count := 3 + g.Wave
 			var positions [][2]float64
-    if g.CurrentMap <= 1 {
-      positions = [][2]float64{
-         {3.0, 1.0}, {7.0, 1.0}, {12.0, 1.0},
-         {5.0, 5.0}, {10.0, 5.0}, {3.0, 8.0}, {12.0, 8.0},
-      }
-    } else {
-      positions = [][2]float64{
-         {15.0, 15.0}, {25.0, 5.0}, {5.0, 25.0},
-         {25.0, 25.0}, {15.0, 5.0}, {5.0, 15.0}, {20.0, 20.0},
-      }
-    }
+			if g.CurrentMap <= 1 {
+				positions = [][2]float64{
+					{3.0, 1.0}, {7.0, 1.0}, {12.0, 1.0},
+					{5.0, 5.0}, {10.0, 5.0}, {3.0, 8.0}, {12.0, 8.0},
+				}
+			} else {
+				positions = [][2]float64{
+					{15.0, 15.0}, {25.0, 5.0}, {5.0, 25.0},
+					{25.0, 25.0}, {15.0, 5.0}, {5.0, 15.0}, {20.0, 20.0},
+				}
+			}
 			g.Entities = []Entity{}
 			for i := 0; i < count && i < len(positions); i++ {
 				g.Entities = append(g.Entities, Entity{
