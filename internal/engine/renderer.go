@@ -639,8 +639,13 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		}
 		screen.ReplacePixels(g.Pixels)
 
-		menuImg := ebiten.NewImage(ScreenWidth, ScreenHeight)
 		fontFace := basicfont.Face7x13
+		menuW, menuH := 200, 150
+		menuImg := ebiten.NewImage(menuW, menuH)
+		menuImg.Fill(color.RGBA{0, 0, 0, 150})
+
+		originX := (ScreenWidth - menuW) / 2
+		originY := (ScreenHeight - menuH) / 2
 
 		if g.ShowControls {
 			controls := []string{
@@ -652,35 +657,33 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				"",
 				"Press ESC to go back",
 			}
-			startY := 80
+			startY := 20
 			for i, line := range controls {
-				x := (ScreenWidth - len(line)*fontFace.Width) / 2
+				x := (menuW - len(line)*fontFace.Width) / 2
 				y := startY + i*fontFace.Height
 				text.Draw(menuImg, line, fontFace, x, y, color.White)
 			}
 		} else {
 			menuItems := []string{"Resume", "Controls", "Quit"}
-			startY := ScreenHeight / 3
+			startY := 30
 			for i, item := range menuItems {
 				y := startY + i*fontFace.Height*2
 
 				if i == g.PauseMenuSelection {
-					arrowX := ScreenWidth/2 - fontFace.Width*5
-					text.Draw(menuImg, ">", fontFace, arrowX, y, color.RGBA{255, 255, 0, 255})
-					textX := ScreenWidth/2 - fontFace.Width*2
-					text.Draw(menuImg, item, fontFace, textX, y, color.RGBA{255, 255, 0, 255})
+					text.Draw(menuImg, ">", fontFace, 30, y, color.RGBA{255, 255, 0, 255})
+					text.Draw(menuImg, item, fontFace, 50, y, color.RGBA{255, 255, 0, 255})
 				} else {
-					textX := ScreenWidth/2 - (len(item)/2)*fontFace.Width
-					text.Draw(menuImg, item, fontFace, textX, y, color.White)
+					text.Draw(menuImg, item, fontFace, 50, y, color.White)
 				}
 			}
-			hint := "Use Arrow Keys and ENTER | ESC to resume"
-			hintX := (ScreenWidth - len(hint)*fontFace.Width) / 2
-			hintY := ScreenHeight - 40
-			text.Draw(menuImg, hint, fontFace, hintX, hintY, color.RGBA{200, 200, 200, 255})
+			hint := "Arrow Keys + Enter | ESC"
+			hintX := (menuW - len(hint)*fontFace.Width) / 2
+			text.Draw(menuImg, hint, fontFace, hintX, menuH-10, color.RGBA{180, 180, 180, 255})
 		}
 
-		screen.DrawImage(menuImg, nil)
+		ops := &ebiten.DrawImageOptions{}
+		ops.GeoM.Translate(float64(originX), float64(originY))
+		screen.DrawImage(menuImg, ops)
 		return
 	}
 	if g.WaveTransition > 0 {
