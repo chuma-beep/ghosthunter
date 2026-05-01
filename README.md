@@ -1,5 +1,9 @@
 # Ghost Hunter
 
+[![Go Version](https://img.shields.io/badge/Go-1.21%2B-blue)](https://go.dev/)
+[![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-blue)](https://ebitengine.org/)
+[![WASM](https://img.shields.io/badge/WASM-Supported-green)](https://github.com/golang/go/tree/master/lib/wasm)
+
 A retro first-person shooter built from scratch in Go using the [Ebitengine](https://ebitengine.org) game engine. Inspired by classic 90s shooters like Doom and Wolfenstein 3D, Ghost Hunter features a custom software raycaster, wave-based combat, multiple enemy types, and a 5-level progression system.
 
 ---
@@ -38,6 +42,7 @@ A retro first-person shooter built from scratch in Go using the [Ebitengine](htt
 - Wall sliding — enemies navigate around obstacles
 - State machine — Chase, Attack, Pain, Death states
 - Doom-style random direction turning when blocked
+- **Player AI** — Toggle AI to watch an autonomous agent play the game
 
 ---
 
@@ -49,6 +54,7 @@ A retro first-person shooter built from scratch in Go using the [Ebitengine](htt
 | Arrow Left / Right | Turn left / right |
 | Space | Shoot |
 | 1 / 2 / 3 | Switch weapon |
+| A | Toggle AI player |
 | ESC | Pause / Resume |
 | R | Restart (game over screen) |
 | Q | Quit |
@@ -71,6 +77,12 @@ xcode-select --install
 sudo apt install libc6-dev libgles2-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev libxxf86vm-dev libasound2-dev
 ```
 
+### Windows
+Install [MSYS2](https://www.msys2.org/), then run:
+```bash
+pacman -S mingw-w64-x86_64-gtk3 mingw-w64-x86_64-libvorbis
+```
+
 ### Run
 ```bash
 git clone https://github.com/chuma-beep/ghosthunter
@@ -83,6 +95,19 @@ go run .
 go build -o ghosthunter .
 ./ghosthunter
 ```
+
+### Run in Browser (WASM)
+```bash
+# Build WASM
+GOOS=js GOARCH=wasm go build -o ghosthunter.wasm .
+
+# Copy wasm_exec.js
+cp $(go env GOROOT)/lib/wasm/wasm_exec.js .
+
+# Serve locally
+go run github.com/hajimehoshi/wasmserve@latest .
+```
+Then open http://localhost:8080 in your browser.
 
 ---
 
@@ -110,7 +135,8 @@ ghosthunter/
     ├── maploader.go         # JSON map loader
     ├── world.go             # Map access functions
     ├── sound.go             # Audio playback
-    └── save.go              # High score persistence
+    ├── save.go              # High score persistence
+    └── ai.go                # Autonomous player AI
 ```
 
 ---
