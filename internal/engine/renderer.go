@@ -3,7 +3,6 @@ package engine
 import (
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"golang.org/x/image/font/basicfont"
 	"image/color"
@@ -161,17 +160,44 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// --- Start screen ---
 	if g.GameState == 0 {
 		screen.Fill(color.Black)
-		ebitenutil.DebugPrint(screen, "GHOST HUNTER\n\nPress SPACE to start\n\nArrow keys to move\nSPACE to shoot\nESC to pause")
+		fontFace := basicfont.Face7x13
+		startLines := []string{
+			"GHOST HUNTER",
+			"",
+			"Press SPACE to start",
+			"",
+			"Arrow keys to move",
+			"SPACE to shoot",
+			"ESC to pause",
+		}
+		startY := ScreenHeight/2 - len(startLines)*fontFace.Height/2
+		for i, line := range startLines {
+			x := (ScreenWidth - len(line)*fontFace.Width) / 2
+			y := startY + i*fontFace.Height
+			text.Draw(screen, line, fontFace, x, y, color.White)
+		}
 		return
 	}
 
 	// --- Game over screen ---
 	if g.GameState == 2 {
 		screen.Fill(color.Black)
-		ebitenutil.DebugPrint(screen, fmt.Sprintf(
-			"\n\n\n\n\n\n\n          GAME OVER\n\n          Score:      %d\n          Best Score: %d\n          Wave:       %d\n          Map:        %d/5\n\n          Press R to restart",
-			g.Score, g.HighScore, g.Wave, g.CurrentMap+1,
-		))
+		fontFace := basicfont.Face7x13
+		gameOverLines := []string{
+			"GAME OVER",
+			fmt.Sprintf("Score:     %d", g.Score),
+			fmt.Sprintf("Best:     %d", g.HighScore),
+			fmt.Sprintf("Wave:      %d", g.Wave),
+			fmt.Sprintf("Map:       %d/5", g.CurrentMap+1),
+			"",
+			"Press R to restart",
+		}
+		startY := ScreenHeight/2 - len(gameOverLines)*fontFace.Height/2
+		for i, line := range gameOverLines {
+			x := (ScreenWidth - len(line)*fontFace.Width) / 2
+			y := startY + i*fontFace.Height
+			text.Draw(screen, line, fontFace, x, y, color.White)
+		}
 		return
 	}
 
@@ -687,10 +713,18 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		return
 	}
 	if g.WaveTransition > 0 {
-		ebitenutil.DebugPrint(screen, fmt.Sprintf("\n\n\n\n\n\n\n\n\n          Wave %d incoming!", g.Wave))
+		fontFace := basicfont.Face7x13
+		waveText := fmt.Sprintf("Wave %d incoming!", g.Wave)
+		x := (ScreenWidth - len(waveText)*fontFace.Width) / 2
+		y := ScreenHeight / 2
+		text.Draw(screen, waveText, fontFace, x, y, color.RGBA{255, 255, 0, 255})
 	}
 	if g.LevelNameTimer > 0 {
-		ebitenutil.DebugPrint(screen, fmt.Sprintf("\n\n\n\n\n          %s", MapNames[g.CurrentMap]))
+		fontFace := basicfont.Face7x13
+		mapName := MapNames[g.CurrentMap]
+		x := (ScreenWidth - len(mapName)*fontFace.Width) / 2
+		y := ScreenHeight/2 - 40
+		text.Draw(screen, mapName, fontFace, x, y, color.White)
 	}
 
 	// weapon name
@@ -703,7 +737,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	case 2:
 		weaponName = "MACHINEGUN"
 	}
-
-	ebitenutil.DebugPrint(screen, fmt.Sprintf("Wave: %d  Score: %d  Best: %d  Health: %d  Ammo: %d  [%s]",
-		g.Wave, g.Score, g.HighScore, g.Health, g.Ammo, weaponName))
+	hudText := fmt.Sprintf("Wave: %d  Score: %d  Best: %d  Health: %d  Ammo: %d  [%s]",
+		g.Wave, g.Score, g.HighScore, g.Health, g.Ammo, weaponName)
+	text.Draw(screen, hudText, basicfont.Face7x13, 5, ScreenHeight-5, color.White)
 }
