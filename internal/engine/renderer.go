@@ -679,7 +679,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 				"",
 				"Arrow Keys : Move",
 				"Space      : Shoot",
-				"Escape    : Pause",
+				"Escape     : Pause",
+				"A          : Toggle AI",
 				"",
 				"Press ESC to go back",
 			}
