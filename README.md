@@ -38,11 +38,18 @@ A retro first-person shooter built from scratch in Go using the [Ebitengine](htt
 - **Reaper** (Map 5) — teleports when far away, high health
 
 ### AI
+
+**Enemy AI**
 - Line of sight detection — enemies only attack when they can see you
 - Wall sliding — enemies navigate around obstacles
 - State machine — Chase, Attack, Pain, Death states
 - Doom-style random direction turning when blocked
-- **Player AI** — Toggle AI to watch an autonomous agent play the game
+
+**Neural Network AI**
+- End-to-end ML pipeline: collect training data → train model → run inference in Go
+- 3-layer neural network with ReLU activations and sigmoid output
+- Press **N** to toggle neural network AI during gameplay
+- Model learns from player demonstrations via imitation learning
 
 ---
 
@@ -54,7 +61,9 @@ A retro first-person shooter built from scratch in Go using the [Ebitengine](htt
 | Arrow Left / Right | Turn left / right |
 | Space | Shoot |
 | 1 / 2 / 3 | Switch weapon |
-| A | Toggle AI player |
+| A | Toggle rule-based AI |
+| N | Toggle neural network AI |
+| D | Start/stop data collection |
 | ESC | Pause / Resume |
 | R | Restart (game over screen) |
 | Q | Quit |
@@ -114,7 +123,7 @@ Then open http://localhost:8080 in your browser.
 ## Project Structure
 
 ```
-ghosthunter/
+gosthunter/
 ├── main.go                  # Entry point, asset loading
 ├── maps/                    # JSON level files
 │   ├── map1.json            # The Haunted Halls (16x16)
@@ -126,6 +135,11 @@ ghosthunter/
 │   ├── gun_pistol/          # Pistol animation frames
 │   ├── gun_machinegun/      # Machinegun animation frames
 │   └── blaster/             # E11 blaster source frames
+├── ml/                      # Machine learning scripts
+│   ├── train_numpy.py       # Train neural network (numpy only)
+│   ├── train.py             # Train with PyTorch
+│   ├── training_data.json   # Collected gameplay samples
+│   └── model_weights.json   # Trained model (22 inputs → 5 outputs)
 └── internal/engine/
     ├── game.go              # Game loop, player movement, entity AI
     ├── renderer.go          # Raycaster, sprite rendering, HUD
@@ -136,8 +150,41 @@ ghosthunter/
     ├── world.go             # Map access functions
     ├── sound.go             # Audio playback
     ├── save.go              # High score persistence
-    └── ai.go                # Autonomous player AI
+    ├── ai.go                # Rule-based player AI
+    └── neural_ai.go         # Neural network inference in Go
 ```
+
+---
+
+## Training Your Own AI
+
+The neural network learns from your gameplay via imitation learning.
+
+### Collect Training Data
+
+1. Run the game: `go run .`
+2. Play normally — move around, shoot enemies, collect pickups
+3. Press **D** to start recording your actions
+4. Play for a few minutes to gather diverse examples
+5. Press **D** again to stop — data saves to `ml/training_data.json`
+
+### Train the Model
+
+```bash
+cd ml
+python train_numpy.py
+```
+
+This trains a 3-layer neural network (22 inputs → 64 hidden → 5 outputs) and exports weights to `model_weights.json`.
+
+### Model Architecture
+
+- **Input (22 features)**: player position, angle, health, ammo, weapon, enemy count, wave, map, portal distance, pickup distances, enemy distances/angles
+- **Output (5 actions)**: move forward, move backward, turn left, turn right, shoot
+- **Hidden layers**: 64 neurons each with ReLU activation
+- **Output layer**: Sigmoid for multi-label classification
+
+The trained model is embedded into the Go binary — inference runs entirely on CPU with no external dependencies.
 
 ---
 
