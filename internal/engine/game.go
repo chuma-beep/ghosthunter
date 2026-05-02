@@ -2,10 +2,15 @@ package engine
 
 import (
 	"errors"
+	"math"
+
+	_ "embed"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"math"
 )
+
+// Track previous Escape state for toggle
+var prevEscapePressed bool
 
 type Game struct {
 	Pixels             []byte
@@ -377,6 +382,14 @@ func (g *Game) Update() error {
 			})
 		}
 	}
+
+	// Toggle pause with ESC
+	escapePressed := ebiten.IsKeyPressed(ebiten.KeyEscape)
+	if escapePressed && !prevEscapePressed && g.GameState == 1 {
+		g.Paused = !g.Paused
+		g.ShowControls = false
+	}
+	prevEscapePressed = escapePressed
 
 	// player movement
 	if ebiten.IsKeyPressed(ebiten.KeyArrowLeft) {
