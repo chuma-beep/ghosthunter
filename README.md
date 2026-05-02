@@ -4,6 +4,8 @@
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows-blue)](https://ebitengine.org/)
 [![WASM](https://img.shields.io/badge/WASM-Supported-green)](https://github.com/golang/go/tree/master/lib/wasm)
 
+![Game Demo](assets/gamedemo.gif)
+
 A retro first-person shooter built from scratch in Go using the [Ebitengine](https://ebitengine.org) game engine. Inspired by classic 90s shooters like Doom and Wolfenstein 3D, Ghost Hunter features a custom software raycaster, wave-based combat, multiple enemy types, and a 5-level progression system.
 
 > This project was built as a learning exercise to explore and understand Go, game development, WebAssembly, and machine learning integration.
