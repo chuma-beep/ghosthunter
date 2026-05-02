@@ -1,27 +1,29 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8"/>
-        <title>Ghost Hunter</title>
-        <style>
-            body {
-                margin: 0;
-                background: #000;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-            }
-        </style>
-    </head>
-    <body>
-        <canvas id="canvas" width="640" height="400"></canvas>
-        <script src="wasm_exec.js"></script>
-        <script>
-            const go = new Go();
-            WebAssembly.instantiateStreaming(fetch("ghosthunter.wasm"), go.importObject).then((result) => {
-                go.run(result.instance);
-            });
-        </script>
-    </body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ghost Hunter</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #000; display: flex; align-items: center; justify-content: center; width: 640px; height: 400px; overflow: hidden; }
+        canvas { display: block; }
+        #loading { color: #ff4444; font-family: monospace; font-size: 1.2em; }
+    </style>
+</head>
+<body>
+    <div id="loading">LOADING...</div>
+    <script src="wasm_exec.js"></script>
+    <script>
+        const go = new Go();
+        WebAssembly.instantiateStreaming(
+            fetch("ghosthunter.wasm"),
+            go.importObject
+        ).then(result => {
+            document.getElementById("loading").style.display = "none";
+            go.run(result.instance);
+        }).catch(err => {
+            document.getElementById("loading").textContent = "Error: " + err;
+        });
+    </script>
+</body>
 </html>
