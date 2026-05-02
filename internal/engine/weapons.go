@@ -166,7 +166,7 @@ func (g *Game) TickWeapon() {
 	if state.Tics == -1 {
 		// waiting for input — check for fire
 		canFire := false
-		aiFiring := g.AI != nil && g.AI.Enabled && g.AI.ShootRequested
+		aiFiring := (g.AI != nil && g.AI.Enabled && g.AI.ShootRequested) || (g.NeuralAI != nil && g.NeuralAI.Enabled && g.NeuralAI.ShootRequested)
 		if g.WeaponType == 2 {
 			canFire = isSpacePressed() || aiFiring
 		} else {

@@ -35,6 +35,8 @@ type Game struct {
 	PauseMenuSelection int
 	ShowControls       bool
 	AI                 *AIController
+	NeuralAI           *NeuralAI
+	DataCollector      *DataCollector
 }
 
 func enemyForMap(mapIndex int) EntityType {
@@ -86,6 +88,9 @@ func NewGame() *Game {
 		},
 	}
 	game.AI = NewAIController()
+	game.DataCollector = NewDataCollector()
+	game.NeuralAI = NewNeuralAI()
+	game.NeuralAI.LoadModel("model_weights.json")
 	return game
 }
 
@@ -193,6 +198,35 @@ func (g *Game) moveEntity(i int, angle float64) {
 }
 
 func (g *Game) Update() error {
+	// Toggle Neural AI with N key - works anytime
+	if inpututil.IsKeyJustPressed(ebiten.KeyN) {
+		if g.NeuralAI != nil {
+			g.NeuralAI.Enabled = !g.NeuralAI.Enabled
+			println("Neural AI enabled:", g.NeuralAI.Enabled)
+		}
+	}
+
+	// Toggle AI with A key - works anytime
+	if inpututil.IsKeyJustPressed(ebiten.KeyA) {
+		if g.AI != nil {
+			g.AI.Enabled = !g.AI.Enabled
+			println("AI enabled:", g.AI.Enabled)
+		}
+	}
+
+	// Toggle data collection with D key - works anytime
+	if inpututil.IsKeyJustPressed(ebiten.KeyD) {
+		if g.DataCollector != nil {
+			if g.DataCollector.Enabled {
+				g.DataCollector.Stop("training_data.json")
+				println("Data collection stopped")
+			} else {
+				g.DataCollector.Start()
+				println("Data collection started - press D to stop")
+			}
+		}
+	}
+
 	// start screen
 	if g.GameState == 0 {
 		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
@@ -204,31 +238,21 @@ func (g *Game) Update() error {
 		return nil
 	}
 
-	// quit
-	if inpututil.IsKeyJustPressed(ebiten.KeyQ) {
-		return ebiten.Termination
-	}
-
-	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
-		if g.ShowControls {
-			g.ShowControls = false
-		} else {
-			g.Paused = !g.Paused
-		}
-	}
-
-	// Toggle AI with A key
-	if inpututil.IsKeyJustPressed(ebiten.KeyA) {
-		if g.AI != nil {
-			g.AI.Enabled = !g.AI.Enabled
-			println("AI enabled:", g.AI.Enabled)
-		}
+	// Collect training data
+	if g.DataCollector != nil && g.DataCollector.Enabled && g.GameState == 1 && !g.Paused {
+		g.DataCollector.Collect(g)
 	}
 
 	// AI update
 	if g.GameState == 1 && g.AI != nil && !g.Paused {
 		g.AI.ShootRequested = false
 		g.AI.Update(g)
+	}
+
+	// Neural AI update
+	if g.GameState == 1 && g.NeuralAI != nil && !g.Paused && g.NeuralAI.Enabled {
+		g.NeuralAI.ShootRequested = false
+		g.NeuralAI.Update(g)
 	}
 
 	if g.Paused {
@@ -361,7 +385,7 @@ func (g *Game) Update() error {
 	if ebiten.IsKeyPressed(ebiten.KeyArrowRight) {
 		g.Angle += 0.05
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyArrowUp) || (g.AI != nil && g.AI.Enabled && g.AI.MoveForward) {
+	if ebiten.IsKeyPressed(ebiten.KeyArrowUp) || (g.AI != nil && g.AI.Enabled && g.AI.MoveForward) || (g.NeuralAI != nil && g.NeuralAI.Enabled && g.NeuralAI.MoveForward) {
 		newX := g.PlayerX + math.Cos(g.Angle)*0.08
 		newY := g.PlayerY + math.Sin(g.Angle)*0.08
 		if int(newY) >= 0 && int(newY) < GetMapHeight(g.CurrentMap) &&
@@ -371,7 +395,7 @@ func (g *Game) Update() error {
 			g.PlayerY = newY
 		}
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyArrowDown) || (g.AI != nil && g.AI.Enabled && g.AI.MoveBackward) {
+	if ebiten.IsKeyPressed(ebiten.KeyArrowDown) || (g.AI != nil && g.AI.Enabled && g.AI.MoveBackward) || (g.NeuralAI != nil && g.NeuralAI.Enabled && g.NeuralAI.MoveBackward) {
 		newX := g.PlayerX - math.Cos(g.Angle)*0.08
 		newY := g.PlayerY - math.Sin(g.Angle)*0.08
 		if int(newY) >= 0 && int(newY) < GetMapHeight(g.CurrentMap) &&
